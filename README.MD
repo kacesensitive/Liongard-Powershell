@@ -4,7 +4,7 @@
 A PowerShell module to interact with [the Liongard Public API](https://docs.liongard.com/reference#developer-guide).  
 
 ## Installing this module
-This module will hopefully be available in [PowerShell Gallery](https://www.powershellgallery.com/packages/NinjaRmmApi) soon!:
+This module will hopefully be available in [PowerShell Gallery](https://www.powershellgallery.com/packages/) soon!:
 
 So for now download it from here and save all of the files somewhere in your `$PSModulePath`.
 
