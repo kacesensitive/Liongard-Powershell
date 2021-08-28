@@ -21,7 +21,7 @@ You will need to do this every time you start a new PowerShell session;  this mo
 Now that that's been done, start using the Liongard API!
 
 ### Environments
-You can look up Environments with the `Get-LiongardEnvironments` cmdlet.  With no arguments, it returns all of the environments.  You can also use the -EnvironmentID parameter to fetch a specific Environment.  The Liongard API returns data as objects that you can parse with other PowerShell cmdlets like `Format-List` and `Select-Object` (and, of course, everyone's favorite, `Out-GridView`!).
+You can look up Environments with the `Get-LiongardEnvironments` cmdlet.  With no arguments, it returns all of the environments.  You can also use the -EnvironmentID parameter to fetch a specific Environment.
 ```powershell
 PS C:\> Get-LiongardEnvironments -EnvironmentID 11 | Format-List
 ```
