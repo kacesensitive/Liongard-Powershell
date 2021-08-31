@@ -55,7 +55,6 @@ Function Send-LiongardRequest {
 	[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
 	# Some new versions of PowerShell also support TLS 1.3.  If that is a valid
-	# option, then enable that, too, in case NinjaRMM ever enables it.
 	If ([Net.SecurityProtocolType].GetMembers() -Contains 'Tls13') {
 		[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls13
 	}
