@@ -49,8 +49,6 @@ Function Send-LiongardRequest {
 	If ($null -eq $env:LGInstance) {
 		Throw [Data.NoNullAllowedException]::new('No instance has been provided.  Please run Set-LiongardKeys.')
 	}
-
-	# Ensure that TLS 1.2 is enabled, so that we can communicate with NinjaRMM.
 	# It may be disabled by default before PowerShell 6.
 	[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
