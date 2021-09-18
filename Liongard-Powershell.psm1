@@ -36,8 +36,12 @@ Function Send-LiongardRequest {
 		[String] $RequestToSend,
 
 		[ValidateSet('GET', 'PUT', 'POST', 'DELETE')]
-		[String] $Method = 'GET'
+		[String] $Method = 'GET',
+		
+		[Parameter(Mandatory=$false)][hashtable] $Body
 	)
+
+    
 
 	# Stop if our secrets have not been learned.
 	If ($null -eq $env:LGAccessKey) {
@@ -58,8 +62,14 @@ Function Send-LiongardRequest {
 	}
 	$Bytes = [System.Text.Encoding]::UTF8.GetBytes("$($env:LGAccessKey):$($env:LGAccessSecret)")
 	$EncodedText =[Convert]::ToBase64String($Bytes)
-	$Content = (Invoke-WebRequest -Uri https://"$($env:LGInstance)".app.liongard.com/api/"$($RequestToSend)" -Headers @{"X-ROAR-API-KEY"="$($EncodedText)"})
-	Return $Content.Content | ConvertFrom-Json
+	if ($Method) {
+		$Content = (Invoke-WebRequest -Uri https://"$($env:LGInstance)".app.liongard.com/api/"$($RequestToSend)" -Headers @{"X-ROAR-API-KEY"="$($EncodedText)"} -Method $Method -Body $Body)
+        Return $Content.Content | ConvertFrom-Json
+	}
+	if (!($Method)) {
+        $Content = (Invoke-WebRequest -Uri https://"$($env:LGInstance)".app.liongard.com/api/"$($RequestToSend)" -Headers @{"X-ROAR-API-KEY"="$($EncodedText)"})
+	    Return $Content.Content | ConvertFrom-Json
+    }
 }
 
 
@@ -75,7 +85,7 @@ Function Get-LiongardEnvironments {
 	If ($PSCmdlet.ParameterSetName -eq 'OneEnvironment') {
 		$Request += "/$EnvironmentID"
 	}
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
@@ -91,7 +101,7 @@ Function Get-LiongardAgents {
 	If ($PSCmdlet.ParameterSetName -eq 'OneAgent') {
 		$Request += "/$AgentID"
 	}
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
@@ -107,7 +117,7 @@ Function Get-LiongardLaunchpoints {
 	If ($PSCmdlet.ParameterSetName -eq 'OneLaunchpoint') {
 		$Request += "/$LaunchpointID"
 	}
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
@@ -123,7 +133,7 @@ Function Get-LiongardSystems {
 	If ($PSCmdlet.ParameterSetName -eq 'OneSystem') {
 		$Request += "/$SystemID/view"
 	}
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
@@ -139,21 +149,21 @@ Function Get-LiongardDetections {
 	If ($PSCmdlet.ParameterSetName -eq 'OneDetection') {
 		$Request += "/$DetectionID"
 	}
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
 # This function gets a list Liongard Alerts that have been raised
 Function Get-LiongardAlerts {
 	$Request = 'v1/tasks'
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
 # This function gets a list of metrics that have been created
 Function Get-LiongardMetrics {
 	$Request = 'v1/metrics'
-	Write-Host $Request
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
 }
 
@@ -163,7 +173,49 @@ Function Get-LiongardMetricValue {
 		[Parameter(Mandatory=$true)][int[]]$SystemIDs,
 		[Parameter(Mandatory=$true)][int[]]$MetricIDs
 	)
-	$Request = "/v1/metrics/bulk/?systems="+"$($SystemIDs)"+"&metrics="+"$($MetricIDs)"+"&includeNonVisible=true"
-	Write-Host $Request
+	$Request = "v1/metrics/bulk/?systems="+"$($SystemIDs)"+"&metrics="+"$($MetricIDs)"+"&includeNonVisible=true"
+	
 	Return (Send-LiongardRequest -RequestToSend $Request)
+}
+
+# This function creates an environemt
+Function New-LiongardEnvironment {
+	Param(
+		[Parameter(Mandatory=$true)][string]$Name,
+		[Parameter(Mandatory=$false)][string]$Description,
+		[Parameter(Mandatory=$false)][int]$Parent
+	)
+	$Request = "v1/environments"
+	
+	Return (Send-LiongardRequest -RequestToSend $Request -Body @{"Name"="$($Name)"} -Method 'POST')
+}
+
+# This function deletes an environemt
+Function Remove-LiongardEnvironment {
+	Param(
+		[Parameter(Mandatory=$true)][int]$ID
+	)
+	$Request = "v1/environments/$ID"
+	
+	Return (Send-LiongardRequest -RequestToSend $Request -Method 'DELETE')
+}
+
+# This function deletes an agent
+Function Remove-LiongardAgent {
+	Param(
+		[Parameter(Mandatory=$true)][int]$ID
+	)
+	$Request = "v1/agents/$ID"
+	
+	Return (Send-LiongardRequest -RequestToSend $Request -Method 'DELETE')
+}
+
+# This function flsuhes an agent's job queue
+Function Flush-LiongardAgent {
+	Param(
+		[Parameter(Mandatory=$true)][int]$ID
+	)
+	$Request = "v1/agents/$ID/flush"
+	
+	Return (Send-LiongardRequest -RequestToSend $Request -Method 'POST')
 }
