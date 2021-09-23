@@ -219,3 +219,88 @@ Function Flush-LiongardAgent {
 	
 	Return (Send-LiongardRequest -RequestToSend $Request -Method 'POST')
 }
+
+# This function downloads the Liongard Agent
+Function Get-AgentInstaller {
+    $X64 = 64
+    $X86 = 32
+    $InstallerName = "LiongardAgent-lts.msi"
+    # left out for now..
+    $DownloadURL = ""
+    $InstallerPath = Join-Path $Env:TMP $InstallerName
+    $DebugLog = Join-Path $Env:TMP LiongardDebug.log
+    $MsiLog = Join-Path $Env:TMP install.log
+    $WebClient = New-Object System.Net.WebClient
+    try {
+        $WebClient.DownloadFile($DownloadURL, $InstallerPath)
+    } catch {
+        Add-Content $DebugLog "$(Get-TimeStamp) $_.Exception.Message"
+    }
+    If ( ! (Test-Path $InstallerPath)) {
+        $DownloadError = "Failed to download the Liongard Agent Installer from $DownloadURL"
+        Add-Content $DebugLog "$(Get-TimeStamp) $DownloadError"
+        throw $DownloadError
+    }
+}
+
+# This function installs a server agent
+Function Install-LiongardServerAgent {
+	Param(
+		[Parameter(Mandatory=$true)][string]$LiongardAgentName,
+        [Parameter(Mandatory=$true)][string]$LiongardAgentEnv
+	)
+    Get-AgentInstaller
+    $InstallerName = "LiongardAgent-lts.msi"
+    $InstallerPath = Join-Path $Env:TMP $InstallerName
+    $MsiLog = Join-Path $Env:TMP install.log
+	If ( ! (Test-Path $InstallerPath)) {
+        $InstallerError = "The installer was unexpectedly removed from $InstallerPath"
+        Add-Content $DebugLog "$InstallerError"
+        throw $InstallerError
+    }
+    $LiongardArgs = "LiongardURL=" + "`"$Env:LGInstance.app.liongard.com`"" + " LiongardACCESSKEY=" + $env:LGAccessKey + " LiongardACCESSSECRET=" + $env:LGAccessSecret + " LiongardAGENTNAME=" + "`"$LiongardAgentName`""
+    If ($LiongardAgentEnv.Length -gt 0) {
+        $LiongardArgs += " LiongardENVIRONMENT=" + "`"$LiongardAgentEnv`""
+    }
+    $InstallArgs = @(
+        "/i"
+        "`"$InstallerPath`""
+        $LiongardArgs
+        "/qn"
+        "/L*V"
+        "`"$MsiLog`""
+        "/norestart"
+    )
+    Start-Process msiexec.exe -ArgumentList $InstallArgs -Wait -PassThru
+}
+
+# This function installs an endpoint agent
+Function Install-LiongardEndpointAgent {
+	Param(
+		[Parameter(Mandatory=$true)][string]$LiongardAgentName,
+        [Parameter(Mandatory=$true)][string]$LiongardAgentEnv
+	)
+    Get-AgentInstaller
+    $InstallerName = "LiongardAgent-lts.msi"
+    $InstallerPath = Join-Path $Env:TMP $InstallerName
+    $MsiLog = Join-Path $Env:TMP install.log
+	If ( ! (Test-Path $InstallerPath)) {
+        $InstallerError = "The installer was unexpectedly removed from $InstallerPath"
+        Add-Content $DebugLog "$InstallerError"
+        throw $InstallerError
+    }
+    $LiongardArgs = "LiongardURL=" + "`"$Env:LGInstance.app.liongard.com`"" + " LiongardACCESSKEY=" + $env:LGAccessKey + " LiongardACCESSSECRET=" + $env:LGAccessSecret + " LiongardAGENTNAME=" + "`"$LiongardAgentName`"" + " LiongardAGENTTYPE=" + "customer-endpoint"
+    If ($LiongardAgentEnv.Length -gt 0) {
+        $LiongardArgs += " LiongardENVIRONMENT=" + "`"$LiongardAgentEnv`""
+    }
+    $InstallArgs = @(
+        "/i"
+        "`"$InstallerPath`""
+        $LiongardArgs
+        "/qn"
+        "/L*V"
+        "`"$MsiLog`""
+        "/norestart"
+    )
+    Start-Process msiexec.exe -ArgumentList $InstallArgs -Wait -PassThru
+}
