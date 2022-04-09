@@ -304,3 +304,35 @@ Function Install-LiongardEndpointAgent {
     )
     Start-Process msiexec.exe -ArgumentList $InstallArgs -Wait -PassThru
 }
+
+Function Get-AgentLogs {
+	Param (
+		[string]$InstallDir = "C:\"
+	)
+
+	Get-EventLog -LogName LiongardAgentLog | ConvertTo-Csv | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\events-1.csv"
+
+	Get-Content -Path "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\debug.log" | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\debug-1.log"
+	Get-Content -Path "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\error.log" | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\error-1.log"
+	Get-Content -Path "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\heartbeat.log" | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\heartbeat-1.log"
+	Get-Content -Path "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\janitor.log" | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\janitor-1.log"
+	Get-Content -Path "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\jobs.log" | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\jobs-1.log"
+	Get-Content -Path "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\sqs.log" | Out-File -FilePath "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\sqs-1.log"
+
+	$compress = @{
+		LiteralPath= "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\events-1.csv", "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\debug-1.log", "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\error-1.log", "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\heartbeat-1.log", "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\janitor-1.log", "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\jobs-1.log", "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\sqs-1.log"
+		CompressionLevel = "Fastest"
+		DestinationPath = "$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\bundledlogs.zip"
+		}
+	Compress-Archive @compress -Update
+
+	Remove-Item -Path @(
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\events-1.csv",
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\debug-1.log",
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\error-1.log",
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\heartbeat-1.log",
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\janitor-1.log",
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\jobs-1.log",
+		"$InstallDir\Program Files (x86)\LiongardInc\LiongardAgent\logs\sqs-1.log"
+	)
+}
