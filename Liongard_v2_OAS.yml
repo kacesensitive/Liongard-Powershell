@@ -1,0 +1,1186 @@
+openapi: 3.0.0
+info:
+  title: Liongard v2 Endpoints
+  description: Liongard v2 API Endpoints.
+  contact: {}
+  version: '2.0'
+servers:
+  - url: https://{instance}.app.liongard.com/api/v2
+    variables:
+      instance:
+        default: example
+        description: This should be your instance of Roar, eg us1,us2,ca1
+security:
+  - ApiKeyAuth: []
+paths:
+  /environments/count:
+    get:
+      tags:
+        - Environment
+      summary: Get Environment Count
+      description: ''
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    type: integer
+                    example: 123
+  /environments/:
+    get:
+      tags:
+        - Environment
+      summary: List of Environments
+      description: ''
+      parameters:
+        - name: page
+          in: query
+          description: A integer indicating the current page index
+          required: false
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          description: A integer indicating the current page size
+          required: false
+          schema:
+            type: integer
+        - name: columns
+          in: query
+          description: A comma-separated string indicating the columns
+          required: false
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          description: A string containing the response order
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+    post:
+      tags:
+        - Environment
+      summary: Add an Environment
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentAdd'
+    put:
+      tags:
+        - Environment
+      summary: Update multiple Environments
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBulkResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBulkResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentBulkUpdate'
+  /environments/bulk:
+    post:
+      tags:
+        - Environment
+      summary: Add multiple Environments
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBulkResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EnvironmentBulkResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentBulkAdd'
+  /environments/{environmentId}:
+    put:
+      tags:
+        - Environment
+      summary: Update a Single Environment
+      description: ''
+      parameters:
+        - in: path
+          name: environmentId
+          schema:
+            type: integer
+          required: true
+          description: Environment ID
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentAdd'
+    get:
+      tags:
+        - Environment
+      summary: Get a Single Environment
+      description: ''
+      parameters:
+        - in: path
+          name: environmentId
+          schema:
+            type: integer
+          required: true
+          description: Environment ID
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+    delete:
+      tags:
+        - Environment
+      summary: Delete an Environment
+      description: ''
+      parameters:
+        - in: path
+          name: environmentId
+          schema:
+            type: integer
+          required: true
+          description: Environment ID
+        - in: query
+          name: relatedEntities
+          schema:
+            type: boolean
+          description: Delete entities related to the environment ID
+          required: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    type: integer
+  /environments/{environmentId}/relatedEntities:
+    get:
+      tags:
+        - Environment
+      summary: Get Related Entities per Environment
+      description: Returns all the Related Entities that are tied to a single Environment such as Agents, Launchpoints, and Integration mappings
+      parameters:
+        - in: path
+          name: environmentId
+          required: true
+          schema:
+            type: integer
+          description: Environment ID
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentRelatedEntitiesResponse'
+  /metrics/evaluate:
+    post:
+      tags:
+        - Metrics
+      parameters:
+        - in: query
+          name: includeNonVisible
+          required: false
+          schema:
+            type: boolean
+          description: Determines if metrics set to display off will be evaluated, default is false. Set to true if you would like to evaluate all metrics regardless if enabled or not
+      description: |-
+        Returns Metric values for all systems from the provided Metric ID/UUID(s).
+
+        **Rate Limit**: Requests from a single user in excess of 100 requests per minute may be throttled.
+
+        While its not required to specify filter or sorting objects, it is required to include an empty array in the request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateMetricRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MetricResponse'
+                  Pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    type: object
+                    properties:
+                      Pagination:
+                        $ref: '#/components/schemas/PaginationResponse'
+                xml:
+                  name: main
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too Many Requests
+          headers:
+            Retry-After:
+              description: Number of seconds remaining until the rate-limit window will reset.
+              schema:
+                type: number
+                format: float
+            X-RateLimit-Limit:
+              description: Number of requests allowed within the rate-limit window.
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Number of requests remaining within the current rate-limit window.
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: The UTC date/time at which the current rate-limit window resets.
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error429'
+  /metrics/evaluate/systems:
+    post:
+      tags:
+        - Metrics
+      description: Returns Metric values for all Enabled Metrics for a given System ID, Metrics must have "display" set to enabled to show in the response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateMetricBySystemRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MetricResponse'
+                  Pagination:
+                    $ref: '#/components/schemas/PaginationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /metrics/{MetricID}/relatedEnvironments:
+    get:
+      summary: Get Related Environments
+      tags:
+        - Metrics
+        - Environment
+      description: Returns Environment IDs for all related Environments for a given Metric ID
+      parameters:
+        - in: path
+          name: MetricID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    $ref: '#/components/schemas/RelatedEnvironmentsRequest'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error404'
+  /metrics:
+    get:
+      summary: List Metrics
+      tags:
+        - Metrics
+        - Environment
+      description: Returns a list of metrics that have been created.
+      parameters:
+        - in: query
+          name: Page
+          schema:
+            type: integer
+          description: Page number your requesting
+          example: 1
+        - in: query
+          name: PageSize
+          schema:
+            type: integer
+          description: Number of rows your requesting
+          example: 10
+        - in: query
+          name: Filters[]
+          style: form
+          explode: true
+          description: 'FilterBy = (Name | UCK); Op = (contains | does_not_contain | matches_exactly | starts_with | ends_with); Value: string;'
+          schema: {}
+          example: '{"FilterBy": "Name", "Op": "contains", "Value": "Active Directory"}'
+        - in: query
+          name: Sorting[]
+          style: form
+          explode: true
+          description: SortBy = (ID | Name | UCK); Direction = (DESC | ASC);
+          schema: {}
+          example: '{"SortBy": "ID", "Direction": "DESC"}'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Success:
+                    type: boolean
+                    example: true
+                  Data:
+                    $ref: '#/components/schemas/FetchAllMetricsV2'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error404'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error404'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: X-ROAR-API-KEY
+      description: base64 encoded string of Accesskey:Access Secret
+      in: header
+  schemas:
+    Pagination:
+      type: object
+      properties:
+        Page:
+          type: integer
+          example: 1
+        PageSize:
+          type: integer
+          example: 10
+    Error:
+      type: object
+      properties:
+        Success:
+          type: boolean
+          example: false
+        Message:
+          type: string
+          example: Failure
+    Error404:
+      type: object
+      properties:
+        Success:
+          type: boolean
+          example: false
+        Message:
+          type: string
+          example: Enitity not found
+    Error429:
+      type: object
+      properties:
+        error:
+          type: string
+    PaginationResponse:
+      type: object
+      properties:
+        TotalRows:
+          type: integer
+          example: 1
+        HasMoreRows:
+          type: boolean
+          example: false
+        CurrentPage:
+          type: integer
+          example: 1
+        TotalPages:
+          type: integer
+          example: 1
+        PageSize:
+          type: integer
+          example: 25
+    MetricResponse:
+      type: object
+      properties:
+        SystemID:
+          type: integer
+        FriendlyName:
+          type: string
+          example: Active Directory - Contoso
+        InspectorName:
+          type: string
+          example: active-directory-inspector
+        EnvironmentName:
+          type: string
+          example: Contoso Nation
+        MetricID:
+          type: integer
+        MetricUUID:
+          type: string
+          example: aa4eef4d-3dc5-4b3d-9d8a-00c1d9b68065
+        MetricName:
+          type: string
+          example: 'Active Directory: Count of Joined Computers'
+        TimelineID:
+          type: integer
+        TimelineDate:
+          type: string
+          format: date
+          example: '2021-07-21T14:52:57.022Z'
+        Value:
+          nullable: true
+          example: 5
+        EnvironmentID:
+          type: integer
+    RelatedEnvironmentsRequest:
+      type: array
+      example:
+        - 1
+        - 2
+        - 3
+      items:
+        type: integer
+        example: 1
+    FetchAllMetricsV2:
+      type: object
+      properties:
+        Success:
+          type: boolean
+          example: true
+        Data:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 1
+              Name:
+                type: string
+                example: 'Active Directory: User Password & Activity Summary [Power BI]'
+              Description:
+                type: string
+                example: Information related to user password settings and activity, designed to be pulled into Power BI for reporting.
+              CreatedOn:
+                type: string
+                format: date
+                example: '2018-02-01T18:31:22.896Z'
+              UpdatedOn:
+                type: string
+                format: date
+                example: '2018-02-01T18:31:22.896Z'
+              InspectorID:
+                type: integer
+                example: 1
+              ServiceProviderID:
+                type: integer
+                example: 1
+              EnvironmentID:
+                type: integer
+                example: 1
+              CreatedBy:
+                type: integer
+                example: 1
+              UpdatedBy:
+                type: integer
+                example: 1
+              UCK:
+                type: string
+                example: 'Active Directory: User Password & Activity Summary [Power BI] - 26c53894f6af4b1ab2ca550e0f20f76d'
+              Enabled:
+                type: boolean
+                example: true
+              Visible:
+                type: boolean
+                example: true
+              UUID:
+                type: string
+                example: 'Active Directory: User Password & Activity Summary [Power BI] - 26c53894f6af4b1ab2ca550e0f20f76d'
+              MetricVersions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ID:
+                      type: integer
+                      example: 1
+                    InspectorVersionID:
+                      type: integer
+                      example: 2
+                    Query:
+                      type: string
+                      example: 'Users[].{BadLogonCount: BadLogonCount, DaysSinceLastLogin: DaysSinceLastLogin, DaysSinceLastPasswordChange: DaysSinceLastPasswordChange, LockedOut: LockedOut, PasswordNeverExpires: PasswordNeverExpires, PasswordNotRequired: PasswordNotRequired, Privileged: Privileged, UserActivity: UserActivity, UserName: UserName, LastLogonDate: LastLogonDate, CreateTime: CreateTime}'
+              MetricDisplay:
+                type: boolean
+                example: true
+              ChangesEnabled:
+                type: boolean
+                example: true
+              Inspector:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ID:
+                      type: integer
+                      example: 13
+                    Name:
+                      type: string
+                      example: active-directory-inspector
+                    Alias:
+                      type: string
+                      example: Active Directory
+                    Published:
+                      type: boolean
+                      example: true
+                    Author:
+                      type: string
+                      example: Liongard, Inc.
+                    ContactEmail:
+                      type: string
+                      example: support@liongard.com
+                    Logo:
+                      type: string
+                      example: https://resources.static.liongard.com/images/active-directory-inspector.png
+                    Icon:
+                      type: string
+                      example: https://resources.static.liongard.com/images/icons/microsoft-windows-icon.png
+                    Description:
+                      type: string
+                      example: Inspects Active Directory, returning a wide variety of data including actionable summary information such as privileged users, security policies and much more.
+                    HelpLink:
+                      type: string
+                      example: https://docs.liongard.com/docs/active-directory-inspection-setup
+                    PublishedStatus:
+                      type: string
+                      example: production
+                    InspectorCategory:
+                      type: string
+                      example: appservices
+                    EnhancedBilling:
+                      type: boolean
+                      example: false
+                    DefaultFrequency:
+                      type: object
+                      properties:
+                        Type:
+                          type: string
+                          example: days
+                        Interval:
+                          type: integer
+                          example: 1
+                    Constraints:
+                      type: object
+                      properties:
+                        Tiers:
+                          type: array
+                          items:
+                            type: string
+                            example: core
+                        Platform:
+                          type: array
+                          items:
+                            type: string
+                            example: windows
+                        Frequency:
+                          type: object
+                          properties:
+                            MaxIntervalType:
+                              type: string
+                              example: hours
+                            MaxIntervalFrequency:
+                              type: integer
+                              example: 8
+                        AgentConstraint:
+                          type: array
+                          items:
+                            type: string
+                            example: customer-on-prem
+                        RecomendedAgent:
+                          type: string
+                          example: customer-on-prem
+                    CreatedOn:
+                      type: string
+                      pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                      example: 2021/09/10 19:21:03
+                    UpdatedOn:
+                      type: string
+                      pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                      example: 2021/09/10 19:21:03
+                    DiagnosticsEnabled:
+                      type: boolean
+                      example: false
+    EvaluateMetricRequest:
+      type: object
+      properties:
+        Metrics:
+          type: array
+          example:
+            - 123
+            - abc
+          items:
+            oneOf:
+              - type: string
+                example: string
+              - type: integer
+                example: 1
+        Filters:
+          type: array
+          items:
+            type: object
+            properties:
+              Field:
+                type: string
+                example: EnvironmentID
+                enum:
+                  - EnvironmentID
+                  - SystemID
+                  - FriendlyName
+                  - InspectorName
+              Op:
+                type: string
+                example: equal_to
+                enum:
+                  - equal_to
+                  - contains
+                  - does_not_contain
+                  - matches_exactly
+                  - starts_with
+                  - ends_with
+              Values:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                      example: string
+                    - type: integer
+                      example: 1
+        Sorting:
+          type: array
+          items:
+            type: object
+            properties:
+              SortBy:
+                type: string
+                example: EnvironmentName
+                enum:
+                  - MetricName
+                  - EnvironmentName
+                  - FriendlyName
+                  - MetricID
+                  - EnvironmentID
+                  - SystemID
+              Direction:
+                type: string
+                enum:
+                  - ASC
+                  - DESC
+        Pagination:
+          type: object
+          properties:
+            Page:
+              type: integer
+              example: 1
+            PageSize:
+              type: integer
+              example: 25
+      required:
+        - Metrics
+        - Filters
+        - Sorting
+        - Pagination
+      xml:
+        name: EvaluateMetricResponse
+    EvaluateMetricBySystemRequest:
+      type: object
+      properties:
+        Systems:
+          type: array
+          items:
+            type: integer
+            example: 1241
+        Filters:
+          type: array
+          items:
+            type: object
+            properties:
+              Field:
+                type: string
+                example: EnvironmentID
+                enum:
+                  - EnvironmentID
+                  - SystemID
+                  - FriendlyName
+                  - InspectorName
+              Op:
+                type: string
+                example: equal_to
+                enum:
+                  - equal_to
+                  - contains
+                  - does_not_contain
+                  - matches_exactly
+                  - starts_with
+                  - ends_with
+              Values:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                      example: string
+                    - type: integer
+                      example: 1
+        Sorting:
+          type: array
+          items:
+            type: object
+            properties:
+              SortBy:
+                type: string
+                enum:
+                  - MetricName
+                  - EnvironmentName
+                  - FriendlyName
+                  - MetricID
+                  - EnvironmentID
+                  - SystemID
+              Direction:
+                type: string
+                enum:
+                  - ASC
+                  - DESC
+        Pagination:
+          type: object
+          properties:
+            Page:
+              type: integer
+              example: 1
+            PageSize:
+              type: integer
+              example: 25
+      required:
+        - Systems
+        - Filters
+        - Sorting
+        - Pagination
+      xml:
+        name: EvaluateMetricBySystemRequest
+    EnvironmentAdd:
+      type: object
+      properties:
+        Name:
+          type: string
+          example: string
+        Description:
+          type: string
+        Parent:
+          nullable: true
+          example: null
+        ShortName:
+          type: string
+        Tier:
+          type: string
+          enum:
+            - Core
+            - Essentials
+    EnvironmentResponse:
+      type: object
+      properties:
+        Success:
+          type: boolean
+          example: true
+        Data:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+              ServiceProviderID:
+                type: integer
+              Name:
+                type: string
+                example: Contoso Nation
+              Status:
+                type: integer
+              Visible:
+                type: boolean
+                example: true
+              ExpiresOn:
+                type: string
+                format: date
+                example: '2018-02-01T18:31:22.896Z'
+              KeyRotation:
+                type: integer
+              LastKeyRotation:
+                type: string
+                format: date
+                example: '2018-02-01T18:31:22.896Z'
+              CreatedOn:
+                type: string
+                format: date
+                example: '2018-02-01T18:31:22.896Z'
+              UpdatedOn:
+                type: string
+                format: date
+                example: '2018-02-01T18:31:22.896Z'
+              EndpointInspectorCount:
+                type: integer
+              Tier:
+                type: object
+                properties:
+                  Type:
+                    type: string
+                    enum:
+                      - Essentials
+                      - Core
+                  CanDownGrade:
+                    type: boolean
+                    example: true
+                  AssociatedInspectors:
+                    type: integer
+              AgentsCount:
+                type: integer
+              UpdatedBy:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                  FirstName:
+                    type: string
+                    example: John
+                  LastName:
+                    type: string
+                    example: Doe
+                  FullName:
+                    type: string
+                    example: John Doe
+                  Email:
+                    type: string
+                    example: JDoe@contoso.com
+                  Username:
+                    type: string
+                    example: j.doe.contoso
+                  MfaFactorAuth:
+                    type: boolean
+                    example: true
+                  Status:
+                    type: string
+                    example: active
+                  Owner:
+                    type: boolean
+                    example: true
+                  Visibile:
+                    type: boolean
+                    example: true
+                  Locked:
+                    type: boolean
+                    example: true
+                  Department:
+                    type: string
+                    example: Other
+                  ReceiveTechUpdates:
+                    type: boolean
+                    example: true
+                  LastLogin:
+                    type: string
+                    example: '2018-02-01T18:31:22.896Z'
+                  CreatedOn:
+                    type: string
+                    example: '2018-02-01T18:31:22.896Z'
+                  UpdatedOn:
+                    type: string
+                    example: '2018-02-01T18:31:22.896Z'
+                  Groups:
+                    example: []
+              CreatedBy:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                  FirstName:
+                    type: string
+                    example: John
+                  LastName:
+                    type: string
+                    example: Doe
+                  FullName:
+                    type: string
+                    example: John Doe
+                  Email:
+                    type: string
+                    example: JDoe@contoso.com
+                  Username:
+                    type: string
+                    example: j.doe.contoso
+                  MfaFactorAuth:
+                    type: boolean
+                    example: true
+                  Status:
+                    type: string
+                    example: active
+                  Owner:
+                    type: boolean
+                    example: true
+                  Visibile:
+                    type: boolean
+                    example: true
+                  Locked:
+                    type: boolean
+                    example: true
+                  Department:
+                    type: string
+                    example: Other
+                  ReceiveTechUpdates:
+                    type: boolean
+                    example: true
+                  LastLogin:
+                    type: string
+                    example: '2018-02-01T18:31:22.896Z'
+                  CreatedOn:
+                    type: string
+                    example: '2018-02-01T18:31:22.896Z'
+                  UpdatedOn:
+                    type: string
+                    example: '2018-02-01T18:31:22.896Z'
+                  Groups:
+                    example: []
+    EnvironmentBulkAdd:
+      type: array
+      items:
+        $ref: '#/components/schemas/EnvironmentAdd'
+    EnvironmentBulkUpdate:
+      type: array
+      items:
+        type: object
+        properties:
+          EnvironmentId:
+            type: integer
+          Name:
+            type: string
+          Description:
+            type: string
+          Parent:
+            type: object
+            nullable: true
+            example: null
+          ShortName:
+            type: string
+          Tier:
+            type: string
+            enum:
+              - Essentials
+              - Core
+      xml:
+        name: EnvironmentBulkUpdate
+    EnvironmentBulkResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/EnvironmentResponse'
+    EnvironmentRelatedEntitiesResponse:
+      type: object
+      properties:
+        Success:
+          type: boolean
+          example: true
+        Data:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1
+            LaunchPoints:
+              type: array
+              items:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                    example: 1
+                  Alias:
+                    type: string
+                    example: string
+                  SystemID:
+                    type: integer
+                    example: 1
+                  InspectorID:
+                    type: integer
+                    example: 25
+                  InspectorName:
+                    type: string
+                    example: string
+                  Enabled:
+                    type: boolean
+                    example: true
+                  Status:
+                    type: string
+                    example: string
+            Agents:
+              type: array
+              items:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                    example: 1
+                  Name:
+                    type: string
+                    example: string
+                  Description:
+                    type: string
+                    example: string
+                  Hostname:
+                    type: string
+                    example: ip address
+                  Platform:
+                    type: string
+                    example: string
+                  Managed:
+                    type: boolean
+                    example: true
+            IntegrationMappings:
+              type: array
+              items:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                    example: 1
+                  Integration:
+                    type: string
+                    example: string
+            ChildEnvironments:
+              type: array
+              items:
+                type: object
+                properties:
+                  ID:
+                    type: integer
+                    example: 1
+                  Name:
+                    type: string
+                    example: string
+                  Status:
+                    type: integer
+                    example: 1
+                  Visible:
+                    type: boolean
+                    example: true
+      xml:
+        name: EnvironmentRelatedEntitiesResponse
+x-readme:
+  explorer-enabled: true
+  proxy-enabled: true
+  samples-enabled: true

@@ -1,78 +1,93 @@
 ![LiongardPowershell logo](https://github.com/kacesensitive/Liongard-Powershell/blob/main/Liongard-Powershell.png)
 # Liongard Powershell
 
-A PowerShell module to interact with [the Liongard Public API](https://docs.liongard.com/reference#developer-guide).  
+A PowerShell module to interact with [the Liongard Public API](https://docs.liongard.com/reference#developer-guide). This module supports both v1 and v2 of the Liongard API.
+
+## Features
+- Complete environment management (create, read, update, delete)
+- Agent management and installation
+- Metrics management and evaluation
+- System information retrieval
+- Launchpoint management
+- Detection and alert monitoring
+- Comprehensive logging and error handling
+- Support for both PowerShell Desktop and Core editions
 
 ## Installing this module
-This module will hopefully be available in [PowerShell Gallery](https://www.powershellgallery.com/packages/) soon!:
+This module will hopefully be available in [PowerShell Gallery](https://www.powershellgallery.com/packages/) soon!
 
-So for now download it from here and save all of the files somewhere in your `$PSModulePath`.
+For now, you can install it manually:
+1. Download the repository
+2. Copy all files to a folder named 'Liongard-Powershell' in your `$PSModulePath`
+3. Import the module using `Import-Module Liongard-Powershell`
 
-## Before you start
-To get started with this module, you will need to log into your instance and create an Access Key and Secret (xxx.app.liongard.com/settings#tokens).  Write down the access key and secret.  You will not see them again!
+## Getting Started
+Before using the module, you'll need to obtain API credentials from your Liongard instance:
 
-Then, in your PowerShell session, teach it your secrets with `Set-LiongardKeys`.
+1. Log into your Liongard instance (xxx.app.liongard.com)
+2. Navigate to Settings > API Tokens
+3. Create a new Access Key and Secret (save these securely - they won't be shown again!)
+
+Then, in your PowerShell session:
 ```powershell
-PS C:\> Set-LiongardKeys -AccessKey "blah" -AccessSecret "blah" -Instance "xxx"
-```
-You will need to do this every time you start a new PowerShell session;  this module does *not* store your keys for you!  For long-term storage, consider using a password manager, sticking the keys in your `$Profile` file, or using the [SecretManagement module](https://github.com/powershell/secretmanagement).  How you do this is an exercise left to the reader.
-
-## Using this module
-Now that that's been done, start using the Liongard API!
-
-### Environments
-You can look up Environments with the `Get-LiongardEnvironments` cmdlet.  With no arguments, it returns all of the environments.  You can also use the -EnvironmentID parameter to fetch a specific Environment.
-```powershell
-PS C:\> Get-LiongardEnvironments -EnvironmentID 11 | Format-List
-```
-## Similar Logic For Below
-
-### Agents
-```powershell
-PS C:\> Get-LiongardAgents -AgentID 35
+# Set your API credentials
+Set-LiongardKeys -AccessKey "your_access_key" -AccessSecret "your_access_secret" -Instance "your_instance"
 ```
 
-### Launchpoints
+## Environment Management
 ```powershell
-PS C:\> Get-LiongardLaunchpoints -LaunchpointID 3067
+# Get all environments
+Get-LiongardEnvironments
+
+# Get environment count
+Get-LiongardEnvironmentCount
+
+# Get specific environment
+Get-LiongardEnvironmentById -EnvironmentID 123
+
+# Create new environment
+New-LiongardEnvironment -Name "New Environment" -Description "Test Environment"
+
+# Update environment
+$updateData = @{
+    "Description" = "Updated description"
+}
+Update-LiongardEnvironment -EnvironmentID 123 -UpdateData $updateData
+
+# Remove environment
+Remove-LiongardEnvironment -EnvironmentID 123
 ```
 
-### Systems
+## Agent Management
 ```powershell
-PS C:\>  Get-LiongardSystems -SystemID 307
-```
+# List all agents
+Get-LiongardAgents
 
-### Change Detections
-```powershell
-PS C:\>  Get-LiongardDetections -DetectionID 3033
-```
+# Get specific agent
+Get-LiongardAgents -AgentID 123
 
-### Alerts
-You can also pull back a list of all the current alerts in your instance.
-```powershell
-PS C:\>  Get-LiongardAlerts
-```
+# Install new agent
+Install-LiongardAgent -EnvironmentName "My Environment" -AgentName "Custom Agent Name"
 
-### Metrics
-You can also pull back a list of all the metrics created in your instance.
-```powershell
-PS C:\>  Get-LiongardMetrics
-```
+# Install agent with direct credentials (no need to run Set-LiongardKeys first)
+Install-LiongardAgent -EnvironmentName "My Environment" `
+                     -AccessKey "your_access_key" `
+                     -AccessSecret "your_access_secret" `
+                     -Instance "your_instance"
 
-### Metric Value
-You can even fetch Metric values for one or more systems.
-```powershell
-PS C:\>  Get-LiongardMetricValue -SystemIDs @(1,2,3,4) -MetricIDs @(1,2,3,4)
-```
+# Install agent with custom path and all options
+Install-LiongardAgent -EnvironmentName "My Environment" `
+                     -AgentName "Custom Agent Name" `
+                     -InstallPath "D:\Liongard" `
+                     -AccessKey "your_access_key" `
+                     -AccessSecret "your_access_secret" `
+                     -Instance "your_instance"
 
-## After you're done
-When you are finished, it is best practice to remove your API key from memory:
-```powershell
-PS C:\> Reset-LiongardKeys
-```
+# Uninstall agent
+Uninstall-LiongardAgent                     # Remove agent and clean up all files
+Uninstall-LiongardAgent -KeepLogs          # Remove agent but keep log files
+Uninstall-LiongardAgent -LogPath "C:\Logs\uninstall.log"  # Specify custom log location
 
-## Legal Notices
-This is not the official Liongard Powershell Module and is very much still 
-in the development phase. Please use this module at your own risk.  I am 
-not responsible if running Liongard Powershell commands somehow breaks
-your Liongard deployment.
+# Collect agent logs
+Get-AgentLogs -LogLevel Information -OutputPath "C:\Logs"
+```

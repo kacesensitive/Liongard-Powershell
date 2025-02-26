@@ -1,0 +1,4971 @@
+openapi: 3.0.3
+info:
+  title: Liongard v1 Endpoints
+  description: Liongard v1 API Endpoints.
+  contact: {}
+  version: '1.0'
+servers:
+  - url: https://{instance}.app.liongard.com/api/v1
+    variables:
+      instance:
+        default: example
+        description: This should be your instance of Roar, eg us1,us2,ca1
+security:
+  - ApiKeyAuth: []
+paths:
+  /environments/count:
+    get:
+      tags:
+        - Environments
+      summary: Count
+      description: Returns a count of all environments in your Service Provider.
+      operationId: EnvironmentCount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 20
+      deprecated: false
+  /environments/{EnvironmentID}:
+    get:
+      tags:
+        - Environments
+      summary: Environment by ID
+      description: Get a single environment.
+      operationId: GetEnvironment
+      parameters:
+        - in: path
+          name: EnvironmentID
+          required: true
+          description: ID of Environment
+          schema:
+            type: integer
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Name
+                - ServiceProviderID
+                - ShortName
+                - Description
+                - Visible
+                - Website
+                - Status
+                - CreatedOn
+                - Tier
+                - UpdatedOn
+                - CreatedBy
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environments'
+      deprecated: false
+    put:
+      tags:
+        - Environments
+      summary: Environments
+      description: Update a single environment, If you want to update a child environment, set the Parent Environment, if not set to null
+      operationId: UpdateEnvironment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnvironmentRequest'
+        required: true
+      parameters:
+        - in: path
+          name: EnvironmentID
+          required: true
+          description: ID of Environment
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environments'
+      deprecated: false
+    delete:
+      tags:
+        - Environments
+      summary: Environments
+      description: Delete an environment.
+      operationId: DeleteEnvironment
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 500
+      deprecated: false
+      parameters:
+        - in: path
+          name: EnvironmentID
+          required: true
+          description: ID of Environment
+          schema:
+            type: integer
+  /environments:
+    get:
+      tags:
+        - Environments
+      summary: Environments
+      description: Fetch all environments in your Service Provider.
+      operationId: GetEnvironments
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          required: false
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Name
+                - ServiceProviderID
+                - ShortName
+                - Description
+                - Visible
+                - Website
+                - Status
+                - CreatedOn
+                - Tier
+                - UpdatedOn
+                - CreatedBy
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Environments'
+      deprecated: false
+    post:
+      tags:
+        - Environments
+      summary: Environments
+      description: Creates a single Liongard Environment. If you want to create a child environment, set the Parent Environment, if not set to null.
+      operationId: CreateEnvironment
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - Name
+                - Description
+                - Parent
+              type: object
+              properties:
+                Name:
+                  type: string
+                  example: Environment Name
+                Description:
+                  type: string
+                  example: Environment Description
+                Parent:
+                  type: string
+                  nullable: true
+                  example: null
+                Tier:
+                  type: string
+                  description: Defaults to Core, if not used
+                  enum:
+                    - Core
+                    - Essential
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environments'
+      deprecated: false
+  /environments/{EnvironmentID}/relatedEntities:
+    get:
+      tags:
+        - Environments
+      summary: Related Entities
+      description: Fetch all the related entities for a specific environment, including Launchpoints, Agents, and Child Environments.
+      operationId: GetRelatedEntities
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentRelatedEntities'
+      deprecated: false
+      parameters:
+        - in: path
+          name: EnvironmentID
+          required: true
+          description: ID of Environment
+          schema:
+            type: integer
+  /environments/bulk:
+    post:
+      tags:
+        - Environments
+      summary: Environments Bulk
+      description: Create many environments at once. If you want to create a child environment, set the Parent Environment, if not set to null
+      operationId: CreateEnvironmentsBulk
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                required:
+                  - Name
+                  - Description
+                  - Parent
+                type: object
+                properties:
+                  Name:
+                    type: string
+                    example: Environment Name
+                  Description:
+                    type: string
+                    example: Environment Description
+                  Parent:
+                    type: string
+                    nullable: true
+                    example: null
+                  Tier:
+                    type: string
+                    description: Defaults to Core, if not used
+                    enum:
+                      - Core
+                      - Essential
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Environments'
+      deprecated: false
+  /agents/count:
+    get:
+      tags:
+        - Agents
+      summary: Count
+      description: Returns a count of all the agents in your service provider.
+      operationId: GetAgentCount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 200
+      deprecated: false
+  /agents:
+    get:
+      tags:
+        - Agents
+      summary: Agents
+      description: List all agents.
+      operationId: GetAgents
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Data
+                - UID
+                - Bucket
+                - Name
+                - Description
+                - Status
+                - Hostname
+                - IP
+                - JobQueue
+                - Platform
+                - Suspended
+                - Managed
+                - LastHeartbeat
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+                - UpdatesCheckedOn
+                - Type
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agents'
+      deprecated: false
+  /agents/{AgentID}:
+    get:
+      tags:
+        - Agents
+      summary: Agent by ID
+      description: Get a specific Agent.
+      operationId: GetAgent
+      parameters:
+        - in: path
+          name: AgentID
+          required: true
+          description: ID of Agent
+          schema:
+            type: integer
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Data
+                - UID
+                - Bucket
+                - Name
+                - Description
+                - Status
+                - Hostname
+                - IP
+                - JobQueue
+                - Platform
+                - Suspended
+                - Managed
+                - LastHeartbeat
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+                - UpdatesCheckedOn
+                - Type
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agents'
+      deprecated: false
+    put:
+      tags:
+        - Agents
+      summary: Agent
+      description: Edits a deployed liongard agent, cannot update On-Demand agents.
+      operationId: UpdateAgent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRequest'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agents'
+      deprecated: false
+      parameters:
+        - in: path
+          name: AgentID
+          required: true
+          description: ID of Agent
+          schema:
+            type: integer
+            minimum: 1
+    delete:
+      tags:
+        - Agents
+      summary: Agent
+      description: Remove an agent
+      operationId: DeleteAgent
+      parameters:
+        - in: path
+          name: AgentID
+          required: true
+          description: ID of Agent
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 1500
+      deprecated: false
+  /agents/{AgentID}/flush:
+    post:
+      tags:
+        - Agents
+      summary: Flush Job Queue
+      description: Empty an agent's job queue.
+      operationId: FlushJobQueue
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 1500
+      deprecated: false
+      parameters:
+        - in: path
+          name: AgentID
+          required: true
+          description: ID of Agent
+          schema:
+            type: integer
+            minimum: 1
+  /inspectors:
+    get:
+      tags:
+        - Inspector
+      summary: Inspector Types
+      description: Lists all avaialble Inspectors in Liongard
+      operationId: GetInspectors
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Name
+                - Alias
+                - Published
+                - Author
+                - ContactEmail
+                - Logo
+                - Icon
+                - Description
+                - HelpLink
+                - PublishedStatus
+                - InspectorCategory
+                - EnhancedBilling
+                - DefaultFrequency
+                - Constraints
+                - CreatedOn
+                - DiagnosticsEnabled
+                - UpdatedOn
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inspector'
+      deprecated: false
+  /inspector/{InspectorId}/templates:
+    get:
+      tags:
+        - Inspector
+      summary: Inspector Templates
+      description: Get Inspector Config and SecureConfig Fields. Each Inspector has a set of variables used for configuring the launchpoint of an inspector. The Name key under variables is what is needed for completing the launchpoint configuration, the Secure and Required keys are used to determine if the configuration fields are SecureConfig or Config and if they are required.
+      operationId: GetInspectorsTemplate
+      parameters:
+        - in: path
+          name: InspectorId
+          required: true
+          description: ID of Inspector
+          schema:
+            type: integer
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Inspector
+                - Version
+                - Variables
+                - CreatedOn
+                - UpdatedOn
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InspectorTemplate'
+      deprecated: false
+  /inspector/{InspectorId}/versions:
+    get:
+      tags:
+        - Inspector
+      summary: Inspector Versions
+      description: Returns a List of Inspector Versions, This ID is required for creating a metric and determining the latest version of the inspector to run against. The Latest version of the inspector can be determined by the Lastest ID in the List (Highest ID) or you can use the "CreatedOn" field to determine the latest ID. We recommend sorting by "desc" to return the latest ID at the top of the list.
+      deprecated: false
+      operationId: GetInspectorVersion
+      parameters:
+        - in: path
+          name: InspectorId
+          required: true
+          description: ID of Inspector
+          schema:
+            type: integer
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - CreatedOn
+        - in: query
+          name: orderBy[]
+          style: form
+          explode: true
+          description: Sort response key by Ascending or Descending order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InspectorVersion'
+  /launchpoints/count:
+    get:
+      tags:
+        - Launchpoints
+      summary: Count
+      description: Returns a count of all launchpoints.
+      operationId: GetLaunchpointCount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 1000
+      deprecated: false
+  /launchpoints:
+    get:
+      tags:
+        - Launchpoints
+      summary: Launchpoints
+      description: Lists all launchpoints.
+      operationId: GetLaunchpoints
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Inspector
+                - System
+                - Version
+                - Agent
+                - Alias
+                - Config
+                - TotalScheduledRuns
+                - TotalAdHocRuns
+                - NextScheduledFor
+                - LastScheduledRun
+                - LastAdHocRun
+                - FreqType
+                - FreqInterval
+                - FreqSubdayType
+                - FreqSubdayInterval
+                - FreqRelativeInterval
+                - FreqRecurrenceFactor
+                - ActiveStart
+                - ActiveEnd
+                - Enabled
+                - Visible
+                - Status
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+                - ParentID
+                - DiscoveredBy
+                - ParentAlias
+                - EnvironmentID
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Launchpoints'
+      deprecated: false
+    post:
+      tags:
+        - Launchpoints
+      summary: Launchpoint
+      description: 'Create a launchpoint. You will need to reference the inspector templates for building out the config and secure config objects for this launchpoint. Each Inspector has a different template that contains the necessary configuration fields. '
+      operationId: Launchpoint
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLaunchpoint'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Launchpoints'
+      deprecated: false
+    put:
+      tags:
+        - Launchpoints
+      summary: Bulk Edit Launchpoints
+      description: Update many launchpoints to run on the same schedule.
+      operationId: UpdateBulkLaunchpoints
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBulkLaunchpoint'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LaunchpointsBulk'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: integer
+                          example: 18669
+                        Message:
+                          type: string
+                          example: Error Message
+      deprecated: false
+    delete:
+      tags:
+        - Launchpoints
+      summary: Bulk Delete
+      description: Remove all launchpoints.
+      operationId: BulkDelete
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                LaunchPoints:
+                  type: array
+                  items:
+                    type: integer
+                    example: 18669,18671
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: integer
+                          example: 18671
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: integer
+                          example: 18669
+                        Message:
+                          type: string
+                          example: Error Message
+      deprecated: false
+  /launchpoints/{LaunchpointID}:
+    get:
+      tags:
+        - Launchpoints
+      summary: Launchpoints by ID
+      description: Return a specific launchpoint by ID.
+      operationId: LaunchpointsbyID
+      parameters:
+        - in: path
+          name: LaunchpointID
+          required: true
+          description: ID of Launchpoint
+          schema:
+            type: integer
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Inspector
+                - System
+                - Version
+                - Agent
+                - Alias
+                - Config
+                - TotalScheduledRuns
+                - TotalAdHocRuns
+                - NextScheduledFor
+                - LastScheduledRun
+                - LastAdHocRun
+                - FreqType
+                - FreqInterval
+                - FreqSubdayType
+                - FreqSubdayInterval
+                - FreqRelativeInterval
+                - FreqRecurrenceFactor
+                - ActiveStart
+                - ActiveEnd
+                - Enabled
+                - Visible
+                - Status
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+                - ParentID
+                - DiscoveredBy
+                - ParentAlias
+                - EnvironmentID
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Launchpoints'
+      deprecated: false
+    put:
+      tags:
+        - Launchpoints
+      summary: Launchpoint
+      description: Edit a single inspector launchpoint. You will need to reference the inspector templates for building out the config and secure config objects for this launchpoint. Each Inspector has a different template that contains the necessary configuration fields.
+      operationId: UpdateLaunchpoint
+      parameters:
+        - in: path
+          name: LaunchpointID
+          required: true
+          description: ID of Launchpoint
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLaunchpoint'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Launchpoints'
+      deprecated: false
+    delete:
+      tags:
+        - Launchpoints
+      summary: Launchpoint
+      description: Remove a single launchpoint.
+      operationId: DeleteLaunchpoint
+      parameters:
+        - in: path
+          name: LaunchpointID
+          required: true
+          description: ID of Launchpoint
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 18539
+      deprecated: false
+  /logs:
+    get:
+      tags:
+        - Launchpoints
+      summary: Launchpoint Log
+      description: Return the logs for a specific inspection.
+      operationId: LaunchpointLog
+      parameters:
+        - name: launchpoint
+          in: query
+          required: true
+          description: Launchpoint ID
+          style: form
+          explode: true
+          schema:
+            type: integer
+        - name: timeline
+          in: query
+          required: true
+          description: Timeline ID
+          style: form
+          explode: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/LaunchpointLog'
+                  - $ref: '#/components/schemas/PayloadProcessingLog'
+      deprecated: false
+  /launchpoints/{LaunchpointID}/run:
+    get:
+      tags:
+        - Launchpoints
+      summary: Run
+      description: Set a Launchpoint to run an inspection
+      operationId: Run
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 14822
+      deprecated: false
+      parameters:
+        - in: path
+          name: LaunchpointID
+          required: true
+          description: ID of Launchpoint
+          schema:
+            type: integer
+  /launchpoints/run:
+    post:
+      tags:
+        - Launchpoints
+      summary: Bulk Run
+      description: Kick off many inspections.
+      operationId: BulkRun
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - LaunchPoints
+              properties:
+                LaunchPoints:
+                  type: array
+                  items:
+                    type: integer
+                  example:
+                    - 18700
+                    - 18701
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: integer
+                          example: 18702
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: integer
+                          example: 18669
+                        Message:
+                          type: string
+                          example: Error Message
+      deprecated: false
+  /systems/count:
+    get:
+      tags:
+        - System
+      summary: Count
+      description: Count of all systems in your service provider.
+      operationId: GetSystemCount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 1325
+      deprecated: false
+  /systems:
+    get:
+      tags:
+        - System
+      summary: Systems
+      description: List all systems.
+      operationId: Systems
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Inspector
+                - Launchpoint
+                - UniqueCompositeKey
+                - Name
+                - Description
+                - Tags
+                - UserDefined
+                - Status
+                - Visible
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Systems'
+      deprecated: false
+  /systems/{SystemID}/view:
+    post:
+      tags:
+        - System
+      summary: System Detail View
+      description: Returns the Raw data from the latest inspection for a system.
+      operationId: SystemDetailView
+      parameters:
+        - in: path
+          name: SystemID
+          required: true
+          description: ID of System
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemDetailView'
+      deprecated: false
+  /timeline/count:
+    get:
+      tags:
+        - Timeline
+      summary: Count
+      description: Return count of all timeline entries.
+      operationId: GetCount123
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 2018
+      deprecated: false
+  /timeline:
+    get:
+      tags:
+        - Timeline
+      summary: Timeline
+      description: Fetch all timeline entries.
+      operationId: Timeline
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Launchpoint
+                - System
+                - SystemDetail
+                - Status
+                - AdHoc
+                - ChangeDetections
+                - Alerts
+                - Latest
+                - ExitCode
+                - ExitMessage
+                - CreatedOn
+                - UpdatedOn
+                - ScheduledAt
+                - ProcessingAt
+                - RunningAt
+                - FinishedAt
+                - PayloadSizeBytes
+                - CreatedBy
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Timeline'
+      deprecated: false
+  /timeline/{TimelineID}:
+    get:
+      tags:
+        - Timeline
+      summary: Timeline by ID
+      description: Fetch a specific timeline.
+      operationId: TimelinebyID
+      parameters:
+        - in: path
+          name: TimelineID
+          required: true
+          description: ID of Timeline
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Launchpoint
+                - System
+                - SystemDetail
+                - Status
+                - AdHoc
+                - ChangeDetections
+                - Alerts
+                - Latest
+                - ExitCode
+                - ExitMessage
+                - CreatedOn
+                - UpdatedOn
+                - ScheduledAt
+                - ProcessingAt
+                - RunningAt
+                - FinishedAt
+                - PayloadSizeBytes
+                - CreatedBy
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Timeline'
+      deprecated: false
+  /timeline/{TimelineID}/detail:
+    get:
+      tags:
+        - Timeline
+      summary: Timeline Detail
+      description: Fetch the Raw timeline entry (including the entire dataprint).
+      operationId: TimelineDetail
+      parameters:
+        - in: path
+          name: TimelineID
+          required: true
+          description: ID of Timeline
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimelineDetail'
+      deprecated: false
+  /detections/count:
+    get:
+      tags:
+        - Detections
+      summary: Count
+      description: Returns count of all detection events.
+      operationId: GetCount1234
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 21512
+      deprecated: false
+  /detections:
+    get:
+      tags:
+        - Detections
+      summary: Detections
+      description: Returns a list of all detection events.
+      operationId: Detections
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - TimelineID
+                - System
+                - Inspector
+                - Version
+                - SystemDetail
+                - Timeline
+                - Name
+                - Description
+                - Keywords
+                - Category
+                - Patch
+                - Detection
+                - CreatedOn
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Detection'
+      deprecated: false
+  /detections/{DetectionID}:
+    get:
+      tags:
+        - Detections
+      summary: Detections by ID
+      description: Gets a specific detection.
+      operationId: DetectionsbyID
+      parameters:
+        - in: path
+          name: DetectionID
+          required: true
+          description: ID of Detection
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - TimelineID
+                - System
+                - Inspector
+                - Version
+                - SystemDetail
+                - Timeline
+                - Name
+                - Description
+                - Keywords
+                - Category
+                - Patch
+                - Detection
+                - CreatedOn
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Detection'
+      deprecated: false
+  /tasks/count:
+    get:
+      tags:
+        - Alerts
+      summary: Count
+      description: Returns a count of all alerts.
+      operationId: GetCount12345
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 2341
+      deprecated: false
+  /tasks:
+    get:
+      tags:
+        - Alerts
+      summary: List Alerts
+      description: Returns a list of alerts that have been raised.
+      operationId: ListAlerts
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - CommonID
+                - Category
+                - Name
+                - Description
+                - Priority
+                - Source
+                - Rule
+                - Owner
+                - PercentComplete
+                - AutoClose
+                - Status
+                - RoarStatus
+                - Keywords
+                - StartDate
+                - DueDate
+                - Inspector
+                - Version
+                - Timeline
+                - Launchpoint
+                - Visible
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alerts'
+      deprecated: false
+  /tasks/{TaskID}:
+    get:
+      tags:
+        - Alerts
+      summary: Get single Alert
+      description: Returns a single alert that has been raised.
+      operationId: GetAlert
+      parameters:
+        - in: path
+          name: TaskID
+          required: true
+          description: ID of Alert
+          schema:
+            type: integer
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - CommonID
+                - Category
+                - Name
+                - Description
+                - Priority
+                - Source
+                - Rule
+                - Owner
+                - PercentComplete
+                - AutoClose
+                - Status
+                - RoarStatus
+                - Keywords
+                - StartDate
+                - DueDate
+                - Inspector
+                - Version
+                - Timeline
+                - Launchpoint
+                - Visible
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alerts'
+      deprecated: false
+  /metrics:
+    get:
+      tags:
+        - Metrics
+      summary: List Metrics
+      description: Returns a list of metrics that have been created.
+      operationId: Metrics
+      parameters:
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+      deprecated: false
+    post:
+      tags:
+        - Metrics
+      summary: Create a Metric
+      description: Creates a Single Metrics for a system requires valid JMESPath in the Query field
+      operationId: CreateMetric
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - Name
+                - InspectorID
+                - Queries
+              type: object
+              properties:
+                Name:
+                  type: string
+                  example: 'Active Directory: Count of Joined Computers'
+                InspectorID:
+                  type: integer
+                  example: 13
+                Queries:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      Query:
+                        type: string
+                        example: length(Computers)
+                      InspectorVersionID:
+                        type: integer
+                        example: 1234
+                MetricDisplay:
+                  type: boolean
+                  example: true
+                ChangesEnabled:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+      deprecated: false
+  /metrics/{MetricID}:
+    put:
+      tags:
+        - Metrics
+      summary: Update Metric
+      description: Updates a Metric requires valid JMESPath in the Query field
+      operationId: UpdateMetric
+      parameters:
+        - in: path
+          required: true
+          name: MetricID
+          description: ID of the Metric
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - Name
+                - InspectorID
+                - Queries
+              type: object
+              properties:
+                Name:
+                  type: string
+                  example: 'Active Directory: Count of Joined Computers'
+                InspectorID:
+                  type: integer
+                  example: 13
+                Queries:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      Query:
+                        type: string
+                        example: length(Computers)
+                      InspectorVersionID:
+                        type: integer
+                        example: 1234
+                MetricDisplay:
+                  type: boolean
+                  example: true
+                ChangesEnabled:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+    delete:
+      tags:
+        - Metrics
+      summary: Delete Metric
+      description: Deletes only Custom Created Metrics, Liongard Created Metrics can not be deleted
+      operationId: DeleteMetric
+      parameters:
+        - in: path
+          required: true
+          name: MetricID
+          description: ID of the Metric
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 1618
+  /metrics/bulk:
+    get:
+      tags:
+        - Metrics
+      summary: Fetch Metric values for one or more systems
+      description: For each system ID passed, evaluates each metric ID/UUID passed for that system for the latest inspection data and returns the results. You can use this to build your own reports. You must pass a list of system IDs and metric IDs/UUIDs in the URL parameters. You can request values for up to 10 systems at a time.  Setting includeNonVisible true allows you to get metric values without requiring you to toggle metrics to display within the Liongard UI.
+      operationId: MetricEvaluation
+      parameters:
+        - in: query
+          name: systems
+          required: true
+          style: form
+          explode: false
+          description: List of system IDs
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: metrics
+          style: form
+          required: false
+          explode: false
+          description: List of metric IDs
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: uuids
+          style: form
+          required: true
+          explode: false
+          description: List of metric UUIDs
+          schema:
+            type: array
+            items:
+              type: string
+              format: guid
+        - in: query
+          name: includeNonVisible
+          required: false
+          description: If you want to include non-enabled metrics to be evaluated
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Returns a JSON object. The top level key corresponds to the system ID. Within each system, each key corresponds to a metric evaluation object, which contains information about which timeline entry was returned and what the metric evaluated to.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricEvaluation'
+      deprecated: false
+  /users/count:
+    get:
+      tags:
+        - Users
+      summary: User Count
+      description: Returns a count of total users
+      operationId: UserCount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 50
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List Users
+      description: Returns a list of users in your Liongard Instance
+      operationId: GetUsers
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - FirstName
+                - LastName
+                - Email
+                - Username
+                - MfaFactorAuth
+                - Status
+                - Owner
+                - Visible
+                - Locked
+                - LastLogin
+                - ReceiveTechUpdates
+                - Department
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+                - Preferences
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+    post:
+      tags:
+        - Users
+      summary: Create User
+      description: Creates a single User
+      operationId: CreateUser
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Department:
+                  type: string
+                  example: Service Desk/NOC
+                  enum:
+                    - Sales
+                    - Onboarding
+                    - Service Desk/NOC
+                    - Account Management/vCIO
+                    - Finance
+                    - Leadership
+                    - Other
+                Email:
+                  type: string
+                  example: Steve.Roggers@contoso.com
+                Username:
+                  type: string
+                  example: Steve.Roggers
+                FirstName:
+                  type: string
+                  example: Steve
+                LastName:
+                  type: string
+                  example: Roggers
+                Groups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      ID:
+                        type: integer
+                        example: 27852
+                MfaFactorAuth:
+                  type: boolean
+                  example: true
+                ReceiveTechUpdates:
+                  type: boolean
+                  example: false
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+  /users/{UserID}:
+    get:
+      tags:
+        - Users
+      summary: Get User by ID
+      description: Returns a Single User
+      operationId: GetSingleUser
+      parameters:
+        - in: path
+          name: UserID
+          required: true
+          description: ID of User
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - FirstName
+                - LastName
+                - Email
+                - Username
+                - MfaFactorAuth
+                - Status
+                - Owner
+                - Visible
+                - Locked
+                - LastLogin
+                - ReceiveTechUpdates
+                - Department
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+                - Preferences
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+    put:
+      tags:
+        - Users
+      summary: Update User
+      description: Updates a single User
+      operationId: UpdateUser
+      parameters:
+        - in: path
+          name: UserID
+          required: true
+          description: ID of User
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Department:
+                  type: string
+                  example: Service Desk/NOC
+                  enum:
+                    - Sales
+                    - Onboarding
+                    - Service Desk/NOC
+                    - Account Management/vCIO
+                    - Finance
+                    - Leadership
+                    - Other
+                Email:
+                  type: string
+                  example: Steve.Roggers@contoso.com
+                Username:
+                  type: string
+                  example: Steve.Roggers
+                FirstName:
+                  type: string
+                  example: Steve
+                LastName:
+                  type: string
+                  example: Roggers
+                Groups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      ID:
+                        type: integer
+                        example: 27852
+                MfaFactorAuth:
+                  type: boolean
+                  example: true
+                ReceiveTechUpdates:
+                  type: boolean
+                  example: false
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Users'
+    delete:
+      tags:
+        - Users
+      summary: Delete a User
+      description: Remove a single User.
+      operationId: DeleteUser
+      parameters:
+        - in: path
+          name: UserID
+          required: true
+          description: ID of User
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 625
+  /groups:
+    get:
+      tags:
+        - Groups
+      summary: List Groups
+      description: Returns a List of available Assignable groups for a user
+      operationId: GetGroups
+      parameters:
+        - in: query
+          name: fields[]
+          style: form
+          explode: true
+          description: Will only return the fields specified from this parameter, multiple uses of the parameter required for multiple fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ID
+                - Environment
+                - Description
+                - Visible
+                - Locked
+                - CreatedOn
+                - CreatedBy
+                - UpdatedOn
+                - UpdatedBy
+        - in: query
+          name: conditions[]
+          style: form
+          explode: true
+          description: conditions[]={"path":"Field Path","op":"Operator","value":"value"}
+          schema: {}
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups'
+  /authentication/verify-token:
+    post:
+      tags:
+        - Authentication
+      summary: Verify Token
+      description: Verify token with MFA authentication code
+      operationId: VerifyToken
+      parameters: []
+      security:
+        - SessionTokenAuth: []
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Token:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+      deprecated: false
+  /authentication/login:
+    post:
+      tags:
+        - Authentication
+      summary: Log In
+      description: Returns a session token as well as additional information about logged-in user
+      operationId: LogIn
+      parameters: []
+      security: []
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Username:
+                  type: string
+                Password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+      deprecated: false
+  /access-keys:
+    get:
+      tags:
+        - Access Key
+      summary: List Access Keys
+      description: Returns a List of Access Tokens created by user
+      operationId: GetAccessKeys
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessKeys'
+    post:
+      tags:
+        - Access Key
+      summary: Create Access Key
+      description: Create an Access Token with the permission of user or with only 'Add Agent' permission
+      operationId: CreateAccessKey
+      security:
+        - ApiKeyAuth: []
+        - SessionTokenAuth: []
+      requestBody:
+        description: ''
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isAgentInstallKey:
+                  type: boolean
+                daysUntilExpiration:
+                  type: string
+                  enum:
+                    - '30'
+                    - '90'
+                    - '180'
+                    - '360'
+                    - Unlimited
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAccessKeys'
+  /access-keys/count:
+    get:
+      tags:
+        - Access Key
+      summary: Count Access Keys
+      description: Return a count of all Access Tokens created by user
+      operationId: GetAccessKeysCount
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 10
+  /access-keys/{AccessKeyID}:
+    delete:
+      tags:
+        - Access Key
+      summary: Delete Access Key
+      description: Delete Access Token created by user
+      operationId: DeleteAccessKey
+      parameters:
+        - in: path
+          name: AccessKeyID
+          required: true
+          description: ID of Access Key
+          schema:
+            type: string
+            example: 12a3b45678cd912e3f4g
+      responses:
+        '200':
+          description: ''
+components:
+  schemas:
+    EnvironmentPaths:
+      type: string
+      enum:
+        - ID
+        - Status
+        - Visible
+        - CreatedOn
+        - Name
+    Environments:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 8888
+        ServiceProviderID:
+          type: integer
+          example: 1
+        Name:
+          type: string
+          example: Contoso Nation
+        ShortName:
+          type: string
+          example: CN
+        Description:
+          type: string
+          example: Example Description
+        Status:
+          type: integer
+          example: 1
+        Visible:
+          type: boolean
+          example: true
+        ExpiresOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        KeyRotation:
+          type: integer
+          example: 90
+        Website:
+          type: string
+          example: contoso.com
+        Static:
+          type: boolean
+          example: false
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        Tier:
+          type: object
+          properties:
+            Type:
+              type: string
+              example: Core
+            CanDowngrade:
+              type: boolean
+              example: false
+            AssociatedInspectors:
+              type: integer
+              example: 14
+        CreatedBy:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+            FirstName:
+              type: string
+              example: Alex
+            LastName:
+              type: string
+              example: Weber
+            Username:
+              type: string
+              example: Alex.Weber
+    SystemPaths:
+      type: string
+      enum:
+        - ID
+        - Launchpoint/ID
+        - UniqueCompositeKey
+        - Name
+        - Description
+        - Tags
+        - Status
+        - LastVerifyTime
+        - ScheduledAt
+        - ProcessingAt
+        - RunningAt
+        - CreatedOn
+        - FinishedAt
+        - UpdatedOn
+        - PayloadSizeBytes
+        - CreatedBy/ID
+    EnvironmentsTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 18701
+        ServiceProviderID:
+          type: integer
+          example: 1
+        Name:
+          type: string
+          example: Contoso Nation
+        ShortName:
+          type: string
+          nullable: true
+          example: CN
+        Description:
+          type: string
+          example: Example Description
+        Status:
+          type: integer
+          example: 1
+        Visible:
+          type: boolean
+          example: true
+        ExpiresOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        KeyRotation:
+          type: integer
+          example: 90
+        LastKeyRotation:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        Website:
+          type: string
+          nullable: true
+          example: contoso.com
+        Static:
+          type: boolean
+          example: false
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        Tier:
+          type: string
+          example: Core
+    EnvironmentRelatedEntities:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 8095
+        Launchpoint:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 18671
+              Alias:
+                type: string
+                example: Active Directory - Contoso Nation
+              Enabled:
+                type: boolean
+                example: true
+              Status:
+                type: string
+                example: Active
+        Agents:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 1068
+              Name:
+                type: string
+                example: Contoso Nation Agent
+              Description:
+                type: string
+                example: Main Agent
+              Hostname:
+                type: string
+                nullable: true
+                example: CN-DC01
+              Platform:
+                type: string
+                example: windows
+              Managed:
+                type: boolean
+                example: false
+        IntegrationMappings:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 5502
+              Integration:
+                type: string
+                example: integrationName
+        ChildEnvironments:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 8669
+              Name:
+                type: string
+                example: Contoso Nation - Remote
+              Status:
+                type: integer
+                example: 1
+              Visible:
+                type: boolean
+                example: true
+    UpdateEnvironmentRequest:
+      required:
+        - Name
+        - Description
+        - Parent
+        - Status
+      type: object
+      properties:
+        Name:
+          type: string
+        Description:
+          type: string
+        Parent:
+          type: string
+          nullable: true
+        Tier:
+          type: string
+          enum:
+            - Core
+            - Essential
+        Status:
+          type: integer
+      example:
+        Name: Test new name 2
+        Description: This is an edit test
+        Parent: null
+        Status: 1
+    Agents:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1511
+        Environment:
+          $ref: '#/components/schemas/EnvironmentsTrimmed'
+        Data:
+          type: object
+          properties:
+            PSVersion:
+              type: string
+              example: 5.1.17763.1490
+            JobsRunning:
+              type: integer
+              example: 0
+            AgentVersion:
+              type: string
+              example: 2.0.2
+            MaxJobsAllowed:
+              type: integer
+              example: 5
+            AutoUpdatingStatus:
+              type: string
+              example: Enabled
+              nullable: true
+        UID:
+          type: string
+          example: 07c4265fbd647d5b460324991df2f6c
+        Bucket:
+          type: string
+          example: roar-payloads-52327fb
+        Name:
+          type: string
+          example: Contoso Nation Agent
+        Description:
+          type: string
+          example: Main Agent
+        Status:
+          type: integer
+          example: 1
+        Hostname:
+          type: string
+          example: CN-DC01
+        IP:
+          type: string
+          example: 72.33.231.92
+        JobQueue:
+          type: string
+          example: https://sqs.us-west-2.amazonaws.com/414981065368/02f6c-down
+        Platform:
+          type: string
+          example: windows
+        Suspended:
+          type: boolean
+          example: false
+        Managed:
+          type: boolean
+          example: false
+        LastHeartbeat:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        UpdatesCheckedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        Type:
+          type: string
+          example: customer-on-prem
+        CreatedBy:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+            FirstName:
+              type: string
+              example: Alex
+            LastName:
+              type: string
+              example: Weber
+            Username:
+              type: string
+              example: Alex.Weber
+        SAAS:
+          type: boolean
+          example: false
+    AgentsTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1511
+        Data:
+          type: object
+          properties:
+            PSVersion:
+              type: string
+              example: 5.1.17763.1490
+            JobsRunning:
+              type: integer
+              example: 0
+            AgentVersion:
+              type: string
+              example: 2.0.2
+            MaxJobsAllowed:
+              type: integer
+              example: 5
+            AutoUpdatingStatus:
+              type: string
+              example: Enabled
+              nullable: true
+        UID:
+          type: string
+          example: 07c4265fbd647d5b460324991df2f6c
+        Bucket:
+          type: string
+          example: roar-payloads-52327fb
+        Name:
+          type: string
+          example: Contoso Nation Agent
+        Description:
+          type: string
+          example: Main Agent
+        Status:
+          type: integer
+          example: 1
+        Hostname:
+          type: string
+          example: CN-DC01
+        IP:
+          type: string
+          example: 72.33.231.92
+        JobQueue:
+          type: string
+          example: https://sqs.us-west-2.amazonaws.com/414981065368/02f6c-down
+        Platform:
+          type: string
+          example: windows
+        Suspended:
+          type: boolean
+          example: false
+        Managed:
+          type: boolean
+          example: false
+        LastHeartbeat:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        UpdatesCheckedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        Type:
+          type: string
+          example: customer-on-prem
+    AgentRequest:
+      title: AgentRequest
+      required:
+        - Name
+      type: object
+      properties:
+        Name:
+          type: string
+          example: Agent 1
+        Description:
+          type: string
+          example: ' agent description'
+        Environment:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+    Launchpoints:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 18671
+        Environment:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 18701
+            ServiceProviderID:
+              type: integer
+              example: 1
+            Name:
+              type: string
+              example: Contoso Nation
+            ShortName:
+              type: string
+              nullable: true
+              example: CN
+            Description:
+              type: string
+              example: Example Description
+            Status:
+              type: integer
+              example: 1
+            Visible:
+              type: boolean
+              example: true
+            ExpiresOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+            KeyRotation:
+              type: integer
+              example: 90
+            LastKeyRotation:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+            Website:
+              type: string
+              nullable: true
+              example: contoso.com
+            Static:
+              type: boolean
+              example: false
+            CreatedOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+            UpdatedOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+              nullable: true
+            Tier:
+              type: object
+              properties:
+                Type:
+                  type: string
+                  example: Core
+                CanDowngrade:
+                  type: boolean
+                  example: false
+                AssociatedInspectors:
+                  type: integer
+                  example: 14
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        Version:
+          type: string
+          example: null
+          nullable: true
+        Agent:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1511
+            Data:
+              type: object
+              properties:
+                PSVersion:
+                  type: string
+                  example: 5.1.17763.1490
+                JobsRunning:
+                  type: integer
+                  example: 0
+                AgentVersion:
+                  type: string
+                  example: 2.0.2
+                MaxJobsAllowed:
+                  type: integer
+                  example: 5
+                AutoUpdatingStatus:
+                  type: string
+                  example: Enabled
+                  nullable: true
+            UID:
+              type: string
+              example: 07c4265fbd647d5b460324991df2f6c
+            Bucket:
+              type: string
+              example: roar-payloads-52327fb
+            Name:
+              type: string
+              example: Contoso Nation Agent
+            Description:
+              type: string
+              example: Main Agent
+            Status:
+              type: integer
+              example: 1
+            Hostname:
+              type: string
+              example: CN-DC01
+            IP:
+              type: string
+              example: 72.33.231.92
+            JobQueue:
+              type: string
+              example: https://sqs.us-west-2.amazonaws.com/414981065368/02f6c-down
+            Platform:
+              type: string
+              example: windows
+            Suspended:
+              type: boolean
+              example: false
+            Managed:
+              type: boolean
+              example: false
+            LastHeartbeat:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+            CreatedOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+            UpdatedOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+              nullable: true
+            UpdatesCheckedOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: '2021-09-10T19:21:03.195Z'
+              nullable: true
+            Type:
+              type: string
+              example: customer-on-prem
+        Alias:
+          type: string
+          example: Active Directory - Contoso Nation
+        Config:
+          type: string
+          example: '{"AD_SERVER":"","SEARCH_BASE":"","TIMEOUT":1,"TRIMMED":""}'
+        TotalScheduledRuns:
+          type: integer
+          example: 249
+        TotalAdHocRuns:
+          type: integer
+          example: 7
+        NextScheduledFor:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        LastScheduledRun:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        LastAdHocRun:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        FreqType:
+          type: string
+          example: days
+        FreqInterval:
+          type: integer
+          example: 1
+        FreqSubdayType:
+          type: string
+          nullable: true
+          example: null
+        FreqSubdayInterval:
+          type: integer
+          nullable: true
+          example: null
+        FreqRelativeInterval:
+          type: integer
+          nullable: true
+          example: null
+        FreqRecurrenceFactor:
+          type: integer
+          nullable: true
+          example: null
+        ActiveStart:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        ActiveEnd:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+        Enabled:
+          type: boolean
+          example: true
+        Visible:
+          type: boolean
+          example: true
+        Status:
+          type: string
+          example: Active
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        ParentID:
+          type: integer
+          nullable: true
+          example: null
+        EnvironmentID:
+          type: integer
+          example: 8095
+        CreatedBy:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 1234
+              FirstName:
+                type: string
+                example: Alex
+              LastName:
+                type: string
+                example: Weber
+              Username:
+                type: string
+                example: Alex.Weber
+        UpdatedBy:
+          type: object
+          nullable: true
+          properties:
+            ID:
+              type: integer
+              example: 1234
+            FirstName:
+              type: string
+              example: Alex
+            LastName:
+              type: string
+              example: Weber
+            Username:
+              type: string
+              example: Alex.Weber
+    LaunchpointPaths:
+      type: string
+      enum:
+        - Alias
+        - ID
+        - Inspector/ID
+        - Environment/ID
+        - TotalScheduledRuns
+        - TotalAdHocRuns
+        - LastScheduledRun
+        - Version/ID
+        - LastAdHocRun
+        - FreqType
+        - ActiveStart
+        - ActiveEnd
+        - UpdatedOn
+        - CreatedOn
+        - Status
+    LaunchpointsTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 18700
+        VersionID:
+          type: string
+          nullable: true
+          example: null
+        Alias:
+          type: string
+          example: Launchpoint Name
+        Config:
+          type: string
+          example: '{"AD_SERVER":"dfdfdfdfd","SEARCH_BASE":"dfdfdfd","TIMEOUT":2,"TRIMMED":1}'
+        TotalScheduledRuns:
+          type: integer
+          example: 1
+        TotalAdHocRuns:
+          type: integer
+          example: 3
+        NextScheduledFor:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        LastScheduledRun:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        LastAdHocRun:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        FreqType:
+          type: string
+          example: weeks
+        FreqInterval:
+          type: integer
+          example: 2
+        FreqSubdayType:
+          type: string
+          nullable: true
+          example: null
+        FreqSubdayInterval:
+          type: integer
+          nullable: true
+          example: null
+        FreqRelativeInterval:
+          type: integer
+          nullable: true
+          example: null
+        FreqRecurrenceFactor:
+          type: string
+          nullable: true
+          example: null
+        ActiveStart:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        ActiveEnd:
+          type: string
+          nullable: true
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        Enabled:
+          type: boolean
+          example: true
+        Visible:
+          type: boolean
+          example: true
+        Status:
+          type: string
+          example: Active
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        UpdatedOn:
+          type: string
+          nullable: true
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        ParentID:
+          type: integer
+          nullable: true
+          example: null
+        EnvironmentID:
+          type: integer
+          example: 8000
+    LaunchpointsBulk:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 18671
+        Environment:
+          $ref: '#/components/schemas/EnvironmentsTrimmed'
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        Version:
+          type: string
+          example: null
+          nullable: true
+        Agent:
+          $ref: '#/components/schemas/AgentsTrimmed'
+        Alias:
+          type: string
+          example: Active Directory - Contoso Nation
+        Config:
+          type: string
+          example: '{"AD_SERVER":"","SEARCH_BASE":"","TIMEOUT":1,"TRIMMED":""}'
+        TotalScheduledRuns:
+          type: integer
+          example: 249
+        TotalAdHocRuns:
+          type: integer
+          example: 7
+        NextScheduledFor:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        LastScheduledRun:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        LastAdHocRun:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        FreqType:
+          type: string
+          example: days
+        FreqInterval:
+          type: integer
+          example: 1
+        FreqSubdayType:
+          type: string
+          nullable: true
+          example: null
+        FreqSubdayInterval:
+          type: integer
+          nullable: true
+          example: null
+        FreqRelativeInterval:
+          type: integer
+          nullable: true
+          example: null
+        FreqRecurrenceFactor:
+          type: integer
+          nullable: true
+          example: null
+        ActiveStart:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        ActiveEnd:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+        Enabled:
+          type: boolean
+          example: true
+        Visible:
+          type: boolean
+          example: true
+        Status:
+          type: string
+          example: Active
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+          nullable: true
+        ParentID:
+          type: integer
+          nullable: true
+          example: null
+        EnvironmentID:
+          type: integer
+          example: 8095
+        CreatedBy:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 1234
+              FirstName:
+                type: string
+                example: Alex
+              LastName:
+                type: string
+                example: Weber
+              Username:
+                type: string
+                example: Alex.Weber
+        UpdatedBy:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+            FirstName:
+              type: string
+              example: Alex
+            LastName:
+              type: string
+              example: Weber
+            Username:
+              type: string
+              example: Alex.Weber
+    CreateLaunchpoint:
+      required:
+        - Inspector
+        - Enabled
+        - Visible
+        - Agent
+        - Environment
+        - Version
+        - Alias
+        - Config
+        - FreqType
+        - FreqInterval
+        - ActiveEnd
+        - ActiveStart
+      type: object
+      properties:
+        Inspector:
+          type: object
+          properties:
+            ID:
+              type: string
+              example: 13
+        Enabled:
+          type: boolean
+          example: true
+        Visible:
+          type: boolean
+          example: true
+        ParentID:
+          type: integer
+          nullable: true
+          example: null
+        Agent:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1106
+        Environment:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1000
+        Version:
+          type: string
+          nullable: true
+          example: null
+        Alias:
+          type: string
+          description: The friendly name of the launchpoint.
+          example: Active Directory - Contoso Nation
+        FreqType:
+          type: string
+          description: Allowed values include "day", "hour"
+          example: day
+        FreqInterval:
+          type: integer
+          example: 1
+        ActiveEnd:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+          nullable: true
+        ActiveStart:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        Config:
+          type: object
+          description: The inspectors non Secure Configuration details, this is usually URLs or Configuration details, See Inspector Template Endpoint to build variables
+        SecureConfig:
+          type: object
+          description: The inspectors Secure Configuration details, this is usually passwords or Secret Tokens, See Inspector Template Endpoint to build variables
+          nullable: true
+    UpdateBulkLaunchpoint:
+      required:
+        - LaunchPoints
+        - FreqType
+        - FreqInterval
+        - NextScheduledFor
+        - ActiveEnd
+        - BulkInterval
+        - BulkIntervalNumber
+        - BulkIntervalType
+      type: object
+      properties:
+        LaunchPoints:
+          type: array
+          items:
+            type: integer
+            example: 123, 345, 890
+        FreqType:
+          type: string
+          example: days
+        FreqInterval:
+          type: integer
+          example: 1
+        NextScheduledFor:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        ActiveEnd:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+          nullable: true
+        BulkInterval:
+          type: boolean
+          example: true
+        BulkIntervalNumber:
+          type: integer
+          example: 5
+        BulkIntervalType:
+          type: string
+          example: minutes
+    UpdateLaunchpoint:
+      type: object
+      properties:
+        Agent:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+        Environment:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+        ParentID:
+          type: integer
+          nullable: true
+          example: null
+        Version:
+          type: string
+          nullable: true
+          example: null
+        Alias:
+          type: string
+          example: New Launchpoint Name
+        FreqType:
+          type: string
+          example: weeks
+        FreqInterval:
+          type: integer
+          example: 2
+        ActiveEnd:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/26 23:37:56
+        NextScheduledFor:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/26 23:37:56
+        Config:
+          type: object
+        SecureConfig:
+          type: object
+    LaunchpointLog:
+      type: object
+      properties:
+        Timestamp:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        Type:
+          type: string
+          example: Log
+        ServiceProvider:
+          type: integer
+          example: 1
+        ServiceProviderName:
+          type: string
+          example: Contoso Nation
+        Environment:
+          type: integer
+          example: 8888
+        Inspector:
+          type: integer
+          example: 13
+        Launchpoint:
+          type: integer
+          example: 18700
+        Version:
+          type: integer
+          example: 26
+        VersionTag:
+          type: string
+          example: 1.0.1-20210824-921cf729
+        InspectorName:
+          type: string
+          example: active-directory-inspector
+        Agent:
+          type: integer
+          example: 1491
+        AGENT_ID:
+          type: integer
+          example: 1491
+        AGENT_NAME:
+          type: string
+          example: Agent Name
+        Alias:
+          type: string
+          example: Agent Name - 01
+        Container:
+          type: string
+          nullable: true
+          example: null
+        SetupCommand:
+          type: array
+          items:
+            type: string
+        RunCommand:
+          type: array
+          items:
+            type: string
+        ClearBundle:
+          type: boolean
+          example: false
+        Mode:
+          type: string
+          example: normal
+        Archive:
+          type: string
+          example: ''
+        Bucket:
+          type: string
+          example: ''
+        Protocol:
+          type: string
+          example: https
+        Secrets:
+          type: string
+          nullable: true
+          example: null
+        Timeline:
+          type: integer
+          example: 1332100
+        Checksum:
+          type: string
+          example: 0edd46ee9367b8bca877d8161295
+        PolicyManifest:
+          type: string
+          example: ''
+        PolicyIntegrity:
+          type: string
+          example: ''
+        RESPONSE_QUEUE:
+          type: string
+          example: https://sqs.us-west-3.amazonaws.com/414368/roar-response-queue
+        AGENT_UID:
+          type: string
+          example: 8d8c199dad93skd91kd
+        AWS_REGION:
+          type: string
+          example: us-west-3
+        WorkingDir:
+          type: string
+          example: C:\Windows\Temp
+        Message:
+          type: string
+          example: Agent received the job.
+        Status:
+          type: string
+          example: Processing
+    PayloadProcessingLog:
+      type: object
+      properties:
+        Timestamp:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        Type:
+          type: string
+          example: PayloadProcessingLog
+        Message:
+          type: string
+          example: 'Successfully ran change detection metric ''Active Directory: Privileged Users List'', no change was detected'
+        Category:
+          type: string
+          example: Change Detections
+        Path:
+          type: string
+          example: inspections/logs/18/13/15
+    Inspector:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 13
+        Name:
+          type: string
+          example: active-directory-inspector
+        Alias:
+          type: string
+          example: Active Directory
+        Published:
+          type: boolean
+          example: true
+        Author:
+          type: string
+          example: Liongard, Inc.
+        ContactEmail:
+          type: string
+          example: support@liongard.com
+        Logo:
+          type: string
+          example: https://resources.static.liongard.com/images/active-directory-inspector.png
+        Icon:
+          type: string
+          example: https://resources.static.liongard.com/images/icons/microsoft-windows-icon.png
+        Description:
+          type: string
+          example: Inspects Active Directory, returning a wide variety of data including actionable summary information such as privileged users, security policies and much more.
+        HelpLink:
+          type: string
+          example: https://docs.liongard.com/docs/active-directory-inspection-setup
+        PublishedStatus:
+          type: string
+          example: production
+        InspectorCategory:
+          type: string
+          example: appservices
+        EnhancedBilling:
+          type: boolean
+          example: false
+        DefaultFrequency:
+          type: object
+          properties:
+            Type:
+              type: string
+              example: days
+            Interval:
+              type: integer
+              example: 1
+        Constraints:
+          type: object
+          properties:
+            Tiers:
+              type: array
+              items:
+                type: string
+                example: core
+            Platform:
+              type: array
+              items:
+                type: string
+                example: windows
+            Frequency:
+              type: object
+              properties:
+                MaxIntervalType:
+                  type: string
+                  example: hours
+                MaxIntervalFrequency:
+                  type: integer
+                  example: 8
+            AgentConstraint:
+              type: array
+              items:
+                type: string
+                example: customer-on-prem
+            RecomendedAgent:
+              type: string
+              example: customer-on-prem
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        DiagnosticsEnabled:
+          type: boolean
+          example: false
+    InspectorTemplate:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 107
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        Version:
+          $ref: '#/components/schemas/Version'
+        Variables:
+          type: object
+          properties:
+            Variables:
+              type: array
+              description: Contains possible variable fields from various inspectors
+              items:
+                type: object
+                required:
+                  - Name
+                  - Label
+                  - Type
+                properties:
+                  Help:
+                    type: string
+                    example: Help Text
+                  Hint:
+                    type: string
+                    example: Help Text
+                  Name:
+                    type: string
+                    example: Field Name
+                  Type:
+                    type: string
+                    example: string
+                    description: the object type for the field
+                  Label:
+                    type: string
+                    example: Field Label
+                  Secure:
+                    type: boolean
+                    example: false
+                    description: If the field is a secure field
+                  Required:
+                    type: boolean
+                    example: true
+                    description: If the field is required
+                  ReadOnly:
+                    type: boolean
+                    example: false
+                    description: If the field is Read Only
+                  Parent:
+                    type: boolean
+                    example: false
+                    description: If the field is associated with a parent Launchpoint
+                  Placeholder:
+                    type: string
+                    example: example
+                  ValidationRegexBlacklist:
+                    type: array
+                    description: If the field has Validation regex
+                    items:
+                      type: object
+                      properties:
+                        Regex:
+                          type: string
+                          example: ^\S+$
+                        ErrorMessage:
+                          type: string
+                          example: URL should not contain any whitespace
+            ChildHelpText:
+              type: string
+              example: ''
+            ParentHelpText:
+              type: string
+              example: ''
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        UpdatedOn:
+          type: string
+          nullable: true
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: null
+    InspectorVersion:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 26
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        Name:
+          type: string
+          example: 1.0.1-20210824-921cf729
+        Discovers:
+          type: object
+          properties:
+            inspectors:
+              type: array
+              items:
+                type: string
+                example: windows-inspector
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2018-11-05T00:00:00.000Z'
+        Checksum:
+          type: string
+        PolicyManifest:
+          type: string
+        PolicyIntegrity:
+          type: string
+    Systems:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 3454
+        Environment:
+          $ref: '#/components/schemas/EnvironmentsTrimmed'
+        Launchpoint:
+          $ref: '#/components/schemas/LaunchpointsTrimmed'
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        UniqueCompositeKey:
+          type: string
+          example: ''
+        Name:
+          type: string
+          example: System Name
+          description: The system Name cannot be changed once created
+        Description:
+          type: string
+          example: This is the description
+        Tags:
+          type: string
+          nullable: true
+          example: null
+        UserDefined:
+          type: boolean
+          example: false
+        Status:
+          type: integer
+          example: 1
+        Visible:
+          type: boolean
+          example: true
+        LastVerifyTime:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        CreatedBy:
+          type: string
+          example: Alex Weber
+        UpdatedOn:
+          type: string
+          nullable: true
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: null
+        UpdatedBy:
+          type: string
+          example: Alex Weber
+    SystemsTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 3454
+        UniqueCompositeKey:
+          type: string
+          example: ''
+        Name:
+          type: string
+          example: System Name
+          description: The system Name cannot be changed once created
+        Description:
+          type: string
+          example: This is the description
+        Tags:
+          type: string
+          nullable: true
+          example: null
+        UserDefined:
+          type: boolean
+          example: false
+        Status:
+          type: integer
+          example: 1
+        Visible:
+          type: boolean
+          example: true
+        LastVerifyTime:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        CreatedBy:
+          type: string
+          example: Alex Weber
+        UpdatedOn:
+          type: string
+          nullable: true
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: null
+    SystemDetailView:
+      type: object
+      properties:
+        raw:
+          type: object
+          description: Raw JSON Dataprint for the System
+        system:
+          $ref: '#/components/schemas/Systems'
+        view:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 23
+            ServiceProviderID:
+              type: integer
+              nullable: true
+              example: null
+            EnvironmentID:
+              type: integer
+              nullable: true
+              example: null
+            InspectorID:
+              type: integer
+              example: 13
+            VersionID:
+              type: integer
+              example: 26
+            Name:
+              type: string
+              example: Default
+            Description:
+              type: string
+              example: Default
+            ViewDefinition:
+              type: object
+              description: JMESPath view definitions for the Inspector
+            Default:
+              type: boolean
+              example: true
+            Enabled:
+              type: boolean
+              example: true
+            Visible:
+              type: boolean
+              example: true
+            CreatedOn:
+              type: string
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: 2021/09/10 19:21:03
+            CreatedBy:
+              type: string
+              example: Alex Weber
+            UpdatedOn:
+              type: string
+              nullable: true
+              pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+              example: null
+            UpdatedBy:
+              type: string
+              example: Alex Weber
+        views:
+          type: object
+          description: Evaluated View Definitions
+    SystemDetailTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 295035
+        VersionID:
+          type: integer
+          example: 26
+        Status:
+          type: integer
+          example: 1
+        Visible:
+          type: boolean
+          example: true
+        StartDate:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        EndDate:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: null
+          nullable: true
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        UpdatedOn:
+          type: string
+          nullable: true
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: null
+    Timeline:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1294715
+        Environment:
+          $ref: '#/components/schemas/EnvironmentsTrimmed'
+        Launchpoint:
+          $ref: '#/components/schemas/LaunchpointsTrimmed'
+        System:
+          $ref: '#/components/schemas/SystemsTrimmed'
+        SystemDetail:
+          $ref: '#/components/schemas/SystemDetailTrimmed'
+        Status:
+          type: string
+          example: Completed
+        AdHoc:
+          type: boolean
+          example: false
+          description: Indicator if the timeline entry was run manually or scheduled
+        ChangeDetections:
+          type: integer
+          example: 3
+        Alerts:
+          type: integer
+          example: 2
+        Latest:
+          type: boolean
+          example: false
+          description: Latest timeline entry indicator
+        ExitCode:
+          type: integer
+          example: 0
+        ExitMessage:
+          type: string
+          example: ''
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+          nullable: true
+        ScheduledAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        ProcessingAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        RunningAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        FinishedAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        PayloadSizeBytes:
+          type: integer
+          example: 202285
+          description: Maximum size is 25,000,000 for inspection to land
+        Expired:
+          type: boolean
+          example: false
+    TimelinePaths:
+      type: string
+      enum:
+        - System/ID
+        - PayloadSizeBytes
+        - UpdatedOn
+        - FinishedAt
+        - CreatedOn
+        - RunningAt
+        - ProcessingAt
+        - ScheduledAt
+        - ExitCode
+        - ID
+        - Environment/ID
+        - Launchpoint/ID
+        - SystemDetail/ID
+        - Status
+        - AdHoc
+        - ChangeDetections
+        - Alerts
+        - Latest
+    TimelineDetail:
+      type: object
+      properties:
+        TimelineID:
+          type: integer
+          example: 1294715
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        SystemDetailConfiguration:
+          type: object
+          description: Contains the Raw Dataprint for the system at a certain Timeline
+        Expired:
+          type: boolean
+          example: false
+    TimelineTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1294715
+        Status:
+          type: string
+          example: Completed
+        AdHoc:
+          type: boolean
+          example: false
+          description: Indicator if the timeline entry was run manually or scheduled
+        ChangeDetections:
+          type: integer
+          example: 3
+        Alerts:
+          type: integer
+          example: 2
+        Latest:
+          type: boolean
+          example: false
+          description: Latest timeline entry indicator
+        ExitCode:
+          type: integer
+          example: 0
+        ExitMessage:
+          type: string
+          example: ''
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+          nullable: true
+        ScheduledAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        ProcessingAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        RunningAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        FinishedAt:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        PayloadSizeBytes:
+          type: integer
+          example: 202285
+          description: Maximum size is 25,000,000 for inspection to land
+        Expired:
+          type: boolean
+          example: false
+    Detection:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 68998
+        TimelineID:
+          type: integer
+          example: 1300040
+        Environment:
+          $ref: '#/components/schemas/EnvironmentsTrimmed'
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        Version:
+          $ref: '#/components/schemas/Version'
+        System:
+          $ref: '#/components/schemas/SystemsTrimmed'
+        SystemDetail:
+          $ref: '#/components/schemas/SystemDetailTrimmed'
+        Timeline:
+          $ref: '#/components/schemas/TimelineTrimmed'
+        Name:
+          type: string
+          example: Change Detection Name
+        Description:
+          type: string
+          example: ''
+        Keywords:
+          nullable: true
+          type: string
+          example: null
+        Category:
+          $ref: '#/components/schemas/Category'
+        Patch:
+          type: array
+          items:
+            type: object
+            required:
+              - count
+              - value
+            properties:
+              count:
+                type: integer
+                example: 1
+              value:
+                type: string
+                example: ''
+              removed:
+                type: boolean
+                example: true
+                description: Indicates that the value(s) have been removed
+              added:
+                type: boolean
+                example: false
+                description: Indicates that the value(s) have been added
+        Detection:
+          type: string
+          nullable: true
+          example: null
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+    DetectionPaths:
+      type: string
+      enum:
+        - ID
+        - Environment/ID
+        - System/ID
+        - SystemDetail/ID
+        - Timeline/ID
+        - Name
+        - Description
+        - Keywords
+        - CreatedOn
+        - Inspector/ID
+    Category:
+      type: object
+      properties:
+        ID:
+          type: integer
+          nullable: true
+          example: null
+        Entity:
+          type: string
+          nullable: true
+          example: null
+        Table:
+          type: string
+          nullable: true
+          example: null
+        Name:
+          type: string
+          nullable: true
+          example: null
+        Description:
+          type: string
+          nullable: true
+          example: null
+        Visible:
+          type: boolean
+          nullable: true
+          example: null
+        Reserved:
+          type: boolean
+          nullable: true
+          example: null
+        CreatedOn:
+          type: string
+          nullable: true
+          example: null
+        UpdatedOn:
+          type: string
+          nullable: true
+          example: null
+    Version:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 26
+        Name:
+          type: string
+          example: 1.0.1-20210824-921cf729
+        Discovers:
+          type: object
+          properties:
+            inspectors:
+              type: array
+              items:
+                type: string
+                example: windows-inspector
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: 2021/09/10 19:21:03
+        Checksum:
+          type: string
+          example: a877d8161295685275fd3
+        PolicyManifest:
+          type: string
+          example: ''
+        PolicyInegrity:
+          type: string
+          example: ''
+    Alerts:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 7586
+        Environment:
+          $ref: '#/components/schemas/EnvironmentsTrimmed'
+        CommonID:
+          type: string
+          example: T20210920.00001
+        Category:
+          type: string
+          nullable: true
+          example: null
+        Name:
+          type: string
+          example: Alert Name
+        Description:
+          type: string
+          example: 'Alert Descrition '
+        Priority:
+          $ref: '#/components/schemas/AlertPriority'
+        Source:
+          type: string
+          example: Roar
+        Rule:
+          $ref: '#/components/schemas/AlertRule'
+        Owner:
+          type: string
+          nullable: true
+          example: null
+        PercentComplete:
+          type: integer
+          example: 0
+        AutoClose:
+          type: integer
+          example: 1
+        Status:
+          $ref: '#/components/schemas/AlertStatus'
+        RoarStatus:
+          type: integer
+          example: 0
+        Keywords:
+          type: string
+          nullable: true
+          example: null
+        StartDate:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+        DueDate:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+        ExternalID:
+          type: integer
+          nullable: true
+          example: null
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        Version:
+          $ref: '#/components/schemas/Version'
+        Timeline:
+          $ref: '#/components/schemas/TimelineTrimmed'
+        Launchpoint:
+          $ref: '#/components/schemas/LaunchpointsTrimmed'
+        Visible:
+          type: boolean
+          example: true
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        CreatedBy:
+          type: string
+          nullable: true
+          example: null
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+        UpdatedBy:
+          type: string
+          nullable: true
+          example: null
+    AlertPriority:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 67
+        Entity:
+          type: string
+          example: Task
+        Table:
+          type: string
+          example: Priority
+        Name:
+          type: string
+          example: Critical
+        Description:
+          type: string
+          nullable: true
+          example: null
+        Visible:
+          type: boolean
+          example: true
+        Reserved:
+          type: string
+          example: critical
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+    AlertRule:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1219
+        Name:
+          type: string
+          example: Alert Name
+        Title:
+          type: string
+          example: Alert Title
+        Tags:
+          type: string
+          nullable: true
+          example: null
+        Body:
+          type: string
+          example: Body Content for alert with {{Metric Evaluation}}
+        DynamicContent:
+          type: string
+          example: Dynamic Content for alert with {{Metric Evaluation}}
+        UCK:
+          type: string
+          nullable: true
+          example: null
+        Visible:
+          type: boolean
+          example: true
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: '2021-09-10T19:21:03.195Z'
+    AlertStatus:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 14
+        Entity:
+          type: string
+          example: Task
+        Table:
+          type: string
+          example: Status
+        Name:
+          type: string
+          example: New
+        Description:
+          type: string
+          example: Work has not been initiated yet
+        Visible:
+          type: boolean
+          example: true
+        Reserved:
+          type: string
+          example: new
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+    AlertsTrimmed:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1220
+        Name:
+          type: string
+          example: Alert Name
+        MetricID:
+          type: integer
+          example: 1
+    Metrics:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 1
+        Name:
+          type: string
+          example: 'Active Directory: Count of Joined Computers'
+        UUIDS:
+          type: string
+          example: aa4eef4d-3dc5-4b3d-9d8a-00c1d9b68065
+        UCK:
+          type: string
+          example: 'Active Directory: Count of Joined Computers'
+        Description:
+          type: string
+          example: Number of computers joined to this Active Directory domain (servers and workstations.)
+        CreatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          example: '2021-09-10T19:21:03.195Z'
+        UpdatedOn:
+          type: string
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+          nullable: true
+          example: null
+        ServiceProvider:
+          type: object
+          nullable: true
+          example: null
+        Environment:
+          type: object
+          nullable: true
+          example: null
+        Inspector:
+          $ref: '#/components/schemas/Inspector'
+        MetricDisplay:
+          type: boolean
+          example: true
+        ChangesEnabled:
+          type: boolean
+          example: true
+        MetricVersions:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 123
+              InspectorVersionID:
+                type: integer
+                example: 65
+              Query:
+                type: string
+                example: length(Computers)
+            nullable: true
+        Rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertsTrimmed'
+        HasActiveAlertRule:
+          type: boolean
+          example: true
+        BelongsToChangeRule:
+          type: boolean
+          example: true
+    MetricPaths:
+      type: string
+      enum:
+        - MetricDisplay
+        - Inspector/ID
+        - Name
+        - Description
+        - Keywords
+        - UpdatedOn
+        - CreatedOn
+    MetricEvaluation:
+      type: object
+      properties:
+        systemID:
+          description: System ID that is passed in the query parameters
+          properties:
+            metricID:
+              type: object
+              description: Metric ID that is passed in the query parameters
+              properties:
+                TimelineID:
+                  type: integer
+                  example: 1332180
+                TimelineFinishedAt:
+                  type: string
+                  pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                  example: '2021-09-10T19:21:03.195Z'
+                TimelineCreatedAt:
+                  type: string
+                  pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                  example: '2021-09-10T19:21:03.195Z'
+                Metric:
+                  type: object
+                  properties:
+                    ID:
+                      type: integer
+                      example: 1
+                    Name:
+                      type: string
+                      example: 'Active Directory: Count of Joined Computers'
+                    err:
+                      type: string
+                      nullable: true
+                      example: null
+                    value:
+                      example: 7
+                      anyOf:
+                        - type: string
+                        - type: number
+                        - type: integer
+                        - type: boolean
+                        - type: array
+                          items: {}
+                        - type: object
+      example:
+        - '3517':
+            '1':
+              TimelineID: 1294715
+              TimelineFinishedAt: '2021-08-27T18:20:21.542Z'
+              TimelineCreatedAt: '2021-08-27T18:18:20.480Z'
+              Metric:
+                ID: 1
+                Name: 'Active Directory: Count of Joined Computers'
+                err: null
+                value: 1
+        - '3623':
+            '1':
+              TimelineID: 1332180
+              TimelineFinishedAt: '2021-09-27T18:20:21.542Z'
+              TimelineCreatedAt: '2021-09-27T18:18:20.480Z'
+              Metric:
+                ID: 1
+                Name: 'Active Directory: Count of Joined Computers'
+                err: null
+                value: 7
+    Users:
+      type: object
+      properties:
+        EnvironmentName:
+          type: string
+          example: null
+          nullable: true
+        ID:
+          type: integer
+          example: 3
+        Environment:
+          nullable: true
+          example: null
+        FirstName:
+          type: string
+          example: Alex
+        LastName:
+          type: string
+          example: Weber
+        Email:
+          type: string
+          example: Alex.Weber@contoso.com
+        Username:
+          type: string
+          example: Alex.Weber
+        MfaFactorAuth:
+          type: boolean
+          example: true
+        Status:
+          type: string
+          example: active
+          enum:
+            - active
+            - invited
+        Owner:
+          type: boolean
+          example: false
+        Visible:
+          type: boolean
+          example: true
+        Locked:
+          type: boolean
+          example: false
+        LastLogin:
+          type: string
+          format: date-time
+          example: '2021-07-22T14:47:36.286Z'
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+        ReceiveTechUpdates:
+          type: boolean
+          example: false
+        Department:
+          type: string
+          example: Other
+          enum:
+            - Sales
+            - Onboarding
+            - Service Desk/NOC
+            - Account Management/vCIO
+            - Finance
+            - Leadership
+            - Other
+        CreatedOn:
+          type: string
+          format: date-time
+          example: '2021-07-22T14:47:36.286Z'
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+        UpdatedOn:
+          type: string
+          format: date-time
+          example: '2021-07-22T14:47:36.286Z'
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+        Preferences:
+          type: object
+          properties:
+            ColorTheme:
+              type: object
+              nullable: true
+              properties:
+                name:
+                  type: string
+                  example: Light Mode
+                colors:
+                  type: object
+                cssClass:
+                  type: string
+                  example: light-mode
+        Groups:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: integer
+                example: 2222
+              Name:
+                type: string
+                example: Global Administrator
+              EnvironmentName:
+                type: string
+                nullable: true
+                example: null
+        CreatedBy:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+            FirstName:
+              type: string
+              example: Alex
+            LastName:
+              type: string
+              example: Weber
+            Username:
+              type: string
+              example: Alex.Weber
+        UpdatedBy:
+          type: object
+          properties:
+            ID:
+              type: integer
+              example: 1234
+            FirstName:
+              type: string
+              example: Alex
+            LastName:
+              type: string
+              example: Weber
+            Username:
+              type: string
+              example: Alex.Weber
+    Groups:
+      type: object
+      properties:
+        ID:
+          type: integer
+          example: 12942
+        Environment:
+          nullable: true
+          example: null
+        Name:
+          type: string
+          example: Global Readers
+        Description:
+          type: string
+          example: Read-only permission to resources related to administrative actions. Readers are able to generate and use data within their corresponding Environment(s) for actions such as reporting.
+        Visible:
+          type: boolean
+          example: true
+        Locked:
+          type: boolean
+          example: true
+        CreatedOn:
+          type: string
+          format: date-time
+          example: '2021-07-22T14:47:36.286Z'
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+        UpdatedOn:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+          pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+        Roles:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            properties:
+              ID:
+                type: integer
+                example: 600
+              Name:
+                type: string
+                example: Agent Reader
+              Description:
+                type: string
+                example: Agent Read-Only Permissions
+    StringOps:
+      type: string
+      enum:
+        - equals
+        - not equals
+        - like
+        - not like
+        - in
+        - not in
+    IntegerOps:
+      type: string
+      enum:
+        - '='
+        - '!='
+        - <
+        - <=
+        - '>'
+        - '>='
+        - in
+        - not in
+        - between
+        - not between
+    BooleanOps:
+      type: string
+      enum:
+        - is
+        - is not
+    DateOps:
+      type: string
+      enum:
+        - '='
+        - '!='
+        - <
+        - <=
+        - '>'
+        - '>='
+        - in
+        - not in
+        - between
+        - not between
+    AccessKeys:
+      type: array
+      items:
+        type: object
+        properties:
+          AccessKeyId:
+            type: string
+            example: 12a3b45678cd912e3f4g
+          Status:
+            type: integer
+            example: 1
+          Visible:
+            type: boolean
+            example: true
+          CreatedOn:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          LastUsedOn:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          DeletedOn:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          isAgentInstallKey:
+            type: boolean
+            example: false
+          ExpirationDate:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+    CreateAccessKeys:
+      type: array
+      items:
+        type: object
+        properties:
+          AccessKeyId:
+            type: string
+            example: 12a3b45678cd912e3f4g
+          Status:
+            type: integer
+            example: 1
+          Visible:
+            type: boolean
+            example: true
+          CreatedOn:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          LastUsedOn:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          DeletedOn:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          isAgentInstallKey:
+            type: boolean
+            example: false
+          ExpirationDate:
+            type: string
+            pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+            example: '2021-09-10T19:21:03.195Z'
+          AccessKeySecret:
+            type: string
+            example: a26b4056cde164fg9hij0166k1lmn1133opq68214447545b4r4st17uv3wxy8z8
+    Login:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaWQiOiJhYXxpeGEvcX4-bio0OyVtUihyeGI9UTddJW1ZSj9NXSIsImlhdCI6MTY2NTUxMTM0Nn0.13exKqYRXSTg7jdJHaL8jgFd9J5XeI2PCz5zV-U2grw
+        account:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                EnvironmentName:
+                  type: string
+                  example: null
+                  nullable: true
+                ServiceProviderName:
+                  type: string
+                  example: Liongard
+                ID:
+                  type: integer
+                  example: 3
+                EnvironmentID:
+                  type: integer
+                  nullable: true
+                  example: null
+                FirstName:
+                  type: string
+                  example: Alex
+                LastName:
+                  type: string
+                  example: Weber
+                Email:
+                  type: string
+                  example: Alex.Weber@contoso.com
+                Username:
+                  type: string
+                  example: Alex.Weber
+                MfaFactorAuth:
+                  type: boolean
+                  example: false
+                Status:
+                  type: string
+                  example: active
+                  enum:
+                    - active
+                    - invited
+                Owner:
+                  type: boolean
+                  example: false
+                Visible:
+                  type: boolean
+                  example: true
+                Locked:
+                  type: boolean
+                  example: false
+                ShowOnboard:
+                  type: boolean
+                  example: false
+                LastLogin:
+                  type: string
+                  format: date-time
+                  example: '2021-07-22T14:47:36.286Z'
+                  pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                ReceiveTechUpdates:
+                  type: boolean
+                  example: false
+                Department:
+                  type: string
+                  example: Other
+                  enum:
+                    - Sales
+                    - Onboarding
+                    - Service Desk/NOC
+                    - Account Management/vCIO
+                    - Finance
+                    - Leadership
+                    - Other
+                CreatedOn:
+                  type: string
+                  format: date-time
+                  example: '2021-07-22T14:47:36.286Z'
+                  pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                UpdatedOn:
+                  type: string
+                  format: date-time
+                  example: '2021-07-22T14:47:36.286Z'
+                  pattern: ^[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$
+                Preferences:
+                  type: object
+                  properties:
+                    ColorTheme:
+                      type: object
+                      nullable: true
+                      properties:
+                        name:
+                          type: string
+                          example: Light Mode
+                        colors:
+                          type: object
+                        cssClass:
+                          type: string
+                          example: light-mode
+                CreatedBy:
+                  type: object
+                  properties:
+                    ID:
+                      type: integer
+                      example: 1234
+                    FirstName:
+                      type: string
+                      example: Alex
+                    LastName:
+                      type: string
+                      example: Weber
+                    Username:
+                      type: string
+                      example: Alex.Weber
+                UpdatedBy:
+                  type: object
+                  properties:
+                    ID:
+                      type: integer
+                      example: 1234
+                    FirstName:
+                      type: string
+                      example: Alex
+                    LastName:
+                      type: string
+                      example: Weber
+                    Username:
+                      type: string
+                      example: Alex.Weber
+            groups:
+              type: array
+              items:
+                type: object
+                properties:
+                  Name:
+                    type: string
+                    example: Admin
+                  ServiceProviderID:
+                    type: number
+                    example: 2
+                  EnvironmentID:
+                    type: number
+                    example: 3
+            roles:
+              type: array
+              items:
+                type: string
+              example:
+                - Run
+                - Jump
+                - Crawl
+            permissions:
+              type: array
+              items:
+                type: object
+                properties:
+                  Permission:
+                    type: string
+                  Environments:
+                    type: array
+                    items:
+                      type: string
+              example:
+                - Permission: Move
+                  Environments:
+                    - 3
+                    - 4
+                    - 5
+                    - 6
+                    - 7
+            onboard:
+              type: object
+            serviceProvider:
+              type: object
+            lastActive:
+              type: string
+              example: '2022-10-11T18:02:56.686Z'
+            lastLoggedIn:
+              type: string
+              example: '2022-10-11T18:02:56.686Z'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: X-ROAR-API-KEY
+      description: base64 encoded string of Accesskey:Access Secret
+      in: header
+    SessionTokenAuth:
+      type: apiKey
+      name: X-Auth-Token
+      description: Session token received from successful login
+      in: header
+tags:
+  - name: Environments
+    description: An environment in Roar represents a single end customer for your MSP. An environment will contain Agents, Launchpoints (configured inspections), and Systems (data that has landed as a result of an inspection).
+  - name: Agents
+    description: Agents can be installed in the Cloud or On-Premise and are responsible for running inspections.
+  - name: Inspector
+    description: An Inspector represents the system type and used for building the config templates for launchpoints
+  - name: Launchpoints
+    description: A Launchpoint is a configured Inspection. As an example, if you set up a domain inspector to run on liongard.com, that would be considered a Launchpoint.
+  - name: System
+    description: A System in Roar represents a system that has been inspected by a Launchpoint. When the inspection completes for the first time, a system is completed and a corresponding timeline entry is created each time the inspection lands.
+  - name: Timeline
+    description: A Timeline entry represents a single inspection event. It links a System to it's configuration at that point in time.
+  - name: Detections
+    description: A Detection is a Change that was detected on a system.
+  - name: Alerts
+    description: An Alert is raised when an Alert Rule condition is met by an inspection.
+  - name: Metrics
+  - name: Users
+    description: Create and manage users in your Liongard instance
+  - name: Groups
+    description: A Group represents a combined set of permissions that can be assigned to Users
+x-readme:
+  explorer-enabled: true
+  proxy-enabled: true
+  samples-enabled: true

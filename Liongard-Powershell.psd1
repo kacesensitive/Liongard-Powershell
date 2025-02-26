@@ -1,29 +1,64 @@
 @{
 	RootModule = 'Liongard-Powershell.psm1'
-	ModuleVersion = '0.0.1'
+	ModuleVersion = '0.0.2'
 	CompatiblePSEditions = @('Desktop', 'Core')
 	PowerShellVersion = '5.1'
-	GUID = 'aaf4b5ab-2431-3f4f-3fgg-45ksfrafrcb8'
+	GUID = 'aaf4b5ab-2431-4f4f-9f33-45c5faf1ccb8'
 	Author = 'Kacey Haley'
-	Copyright = '(c) 2021-2022 Kacey Haley. All rights reserved. Licensed under the AGPL version 3.'
-	Description = 'An unofficial PowerShell module to interact with the Liongard public API.'
+	Copyright = '(c) 2021-2024 Kacey Haley. All rights reserved. Licensed under the AGPL version 3.'
+	Description = 'A PowerShell module to interact with the Liongard API (v1 and v2).'
 	FunctionsToExport = @(
-		'Get-LiongardMetricValue',
+		# Environment Management
+		'Get-LiongardEnvironments',
+		'Get-LiongardEnvironmentCount',
+		'Get-LiongardEnvironmentById',
+		'New-LiongardEnvironment',
+		'New-LiongardEnvironmentBulk',
+		'Remove-LiongardEnvironment',
+		'Update-LiongardEnvironment',
+		'Update-LiongardEnvironmentBulk',
+		'Get-LiongardEnvironmentRelatedEntities',
+		'Search-LiongardEnvironments',
+
+		# Metrics Management
 		'Get-LiongardMetrics',
-		'Get-LiongardAlerts',
-		'Get-LiongardDetections',
-		'Get-LiongardSystems',
-		'Get-LiongardLaunchpoints',
+		'Get-LiongardMetricValue',
+		'Invoke-LiongardMetricEvaluation',
+		'Invoke-LiongardMetricEvaluationBySystem',
+		'Get-LiongardMetricRelatedEnvironments',
+		'Search-LiongardMetrics',
+		'Get-LiongardMetricsByFilter',
+
+		# Agent Management
 		'Get-LiongardAgents',
-        'Get-LiongardEnvironments',
-        'Send-LiongardRequest',
-        'Reset-LiongardKeys',
-        'Set-LiongardKeys'
+		'Remove-LiongardAgent',
+		'Clear-LiongardAgent',
+		'Install-LiongardAgent',
+		'Uninstall-LiongardAgent',
+		'Get-AgentLogs',
+
+		# System Management
+		'Get-LiongardSystems',
+
+		# Launchpoint Management
+		'Get-LiongardLaunchpoints',
+
+		# Detection Management
+		'Get-LiongardDetections',
+
+		# Alert Management
+		'Get-LiongardAlerts',
+
+		# Authentication & Core
+		'Set-LiongardKeys',
+		'Reset-LiongardKeys',
+		'Send-LiongardRequest'
 	)
 	CmdletsToExport = @()
 	VariablesToExport = ''
 	AliasesToExport = @(
-		'Remove-LiongardKeys'
+		'Remove-LiongardKeys',
+		'Flush-LiongardAgent'
 	)
 	FileList = @(
 		'Liongard-Powershell.png',
@@ -33,7 +68,7 @@
 	)
 	PrivateData = @{
 		PSData = @{
-			Tags = @('Lionagrd', 'Roar', 'Powershell', 'API', 'computers', 'devices', 'alerts', 'customers', 'REST', 'Windows', 'cloud', 'network', 'macOS')
+			Tags = @('Liongard', 'Roar', 'PowerShell', 'API', 'computers', 'devices', 'alerts', 'customers', 'REST', 'Windows', 'cloud', 'network', 'macOS', 'v1', 'v2')
 			LicenseUri = 'https://github.com/kacesensitive/Liongard-Powershell/blob/main/LICENSE'
 			ProjectUri = 'https://github.com/kacesensitive/Liongard-Powershell'
 			IconUri = 'https://github.com/kacesensitive/Liongard-Powershell/blob/main/Liongard-Powershell.png'
