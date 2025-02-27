@@ -3,9 +3,9 @@
 	ModuleVersion = '0.0.2'
 	CompatiblePSEditions = @('Desktop', 'Core')
 	PowerShellVersion = '5.1'
-	GUID = 'aaf4b5ab-2431-4f4f-9f33-45c5faf1ccb8'
+	GUID = '7114b5ab-2431-4f4f-9f33-45c5faf1ccb7'
 	Author = 'Kacey Haley'
-	Copyright = '(c) 2021-2024 Kacey Haley. All rights reserved. Licensed under the AGPL version 3.'
+	Copyright = '(c) 2021-2025 Liongard. All rights reserved. Licensed under the AGPL version 3.'
 	Description = 'A PowerShell module to interact with the Liongard API (v1 and v2).'
 	FunctionsToExport = @(
 		# Environment Management
