@@ -14,12 +14,9 @@ A PowerShell module to interact with [the Liongard Public API](https://docs.lion
 - Support for both PowerShell Desktop and Core editions
 
 ## Installing this module
-This module will hopefully be available in [PowerShell Gallery](https://www.powershellgallery.com/packages/) soon!
-
-For now, you can install it manually:
-1. Download the repository
-2. Copy all files to a folder named 'Liongard-Powershell' in your `$PSModulePath`
-3. Import the module using `Import-Module Liongard-Powershell`
+```powershell
+Install-Module -Name Liongard-Powershell -AllowPrerelease
+```
 
 ## Getting Started
 Before using the module, you'll need to obtain API credentials from your Liongard instance:
