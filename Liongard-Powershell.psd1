@@ -73,7 +73,7 @@
 			ProjectUri = 'https://github.com/kacesensitive/Liongard-Powershell'
 			IconUri = 'https://github.com/kacesensitive/Liongard-Powershell/blob/main/Liongard-Powershell.png'
 			ReleaseNotes = 'https://github.com/kacesensitive/Liongard-Powershell/blob/main/NEWS.MD'
-			Prerelease = 'This module is a prerelease version.'
+			Prerelease = 'beta'
 			RequireLicenseAcceptance = $false
 		}
 	}
